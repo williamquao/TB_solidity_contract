@@ -32,8 +32,13 @@ contract TBTokens is ERC20 {
     }
 
     function burn(address _minter, uint256 _amount) external onlyOwner returns (bool) {
-     _mint(_minter, _amount);
+     _burn(_minter, _amount);
     return true;
+    }
+
+    function approveTokenUsage(address _owner, address _spender, uint256 _amount) external returns (bool){
+        _approve(_owner, _spender, _amount);
+        return true;
     }
 
 }
