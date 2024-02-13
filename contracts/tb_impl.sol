@@ -6,6 +6,7 @@ import "./TB_tokens.sol";
 import "./ITB.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 
 
 contract TBImpl is Ownable, ReentrancyGuard, ITB_impl {
@@ -87,9 +88,9 @@ contract TBImpl is Ownable, ReentrancyGuard, ITB_impl {
     function deposit(uint _bondId, uint _amount, address _user) public bondExist(_bondId) isMinter(_bondId) notPaused(_bondId) notMatured(_bondId) nonReentrant {
         require(_amount >= unitPrice && _amount % unitPrice == 0, "Amount must be in multiples of unit price");
         BondDepositWithdraws[_bondId].push(DepositWithdrawal(_amount, block.timestamp, msg.sender, _user, Status.DEPOSIT));
-        (bool success) = bondToken(_bondId).transferToken(msg.sender, _user, getAmountWei(_amount));
+        (bool success) = _bondToken(_bondId).transferToken(msg.sender, _user, _getAmountWei(_amount));
         require(success, "Transfer failed");
-        emit TransferWithdrawal(address(bondToken(_bondId)), msg.sender, _user, _amount);
+        emit TransferWithdrawal(address(_bondToken(_bondId)), msg.sender, _user, _amount);
     }
 
     // minter can do a bulk deposit to max 20 users
@@ -103,20 +104,17 @@ contract TBImpl is Ownable, ReentrancyGuard, ITB_impl {
         }
     }
 
-    // function approveContract(uint _bondId, uint _amount) external {
-
-    // }
-    
     // users can withdraw, that is they send their bond tokens back to the minter of the specific bond
     function withdraw(uint _bondId, uint _amount) external override  bondExist(_bondId) notPaused(_bondId) nonReentrant {
          require(_amount >= unitPrice && _amount % unitPrice == 0, "Amount must be in multiples of unit price");
          //user approves contract to transfer a specific amount of bond token from it's wallet
-         require(bondToken(_bondId).approve(address(this), getAmountWei(_amount)), "Transfer approval failed");
-         require(bondToken(_bondId).transferFrom(msg.sender, Bonds[_bondId].minter, getAmountWei(_amount)), "Transfer failed");
+         console.log("sender.  :", msg.sender);
+         require(_bondToken(_bondId).approveTokenUsage(msg.sender, address(this), _getAmountWei(_amount)), "Transfer approval failed");
+         require(_bondToken(_bondId).transferFrom(msg.sender, Bonds[_bondId].minter, _getAmountWei(_amount)), "Transfer failed");
 
          BondDepositWithdraws[_bondId].push(DepositWithdrawal(_amount, block.timestamp, msg.sender, Bonds[_bondId].minter, Status.WITHDRAW));
 
-         emit TransferWithdrawal(address(bondToken(_bondId)), msg.sender, Bonds[_bondId].minter, _amount);
+         emit TransferWithdrawal(address(_bondToken(_bondId)), msg.sender, Bonds[_bondId].minter, _amount);
     }
 
     // only Owner can update the minter of a specific bond
@@ -124,38 +122,41 @@ contract TBImpl is Ownable, ReentrancyGuard, ITB_impl {
         require(_newMinter != address(0), "Address is invalid");
         address prevMinter = Bonds[_bondId].minter;
         require(prevMinter != _newMinter, "Already current minter");
+        console.log("minter: ", prevMinter, _bondToken(_bondId).balanceOf(prevMinter));
 
         Bonds[_bondId].minter = _newMinter;
         // mint previous minter balance to new minter and burn previous minter balance
-        mint(_bondId, bondToken(_bondId).balanceOf(prevMinter));
-        burn(_bondId, bondToken(_bondId).balanceOf(prevMinter), prevMinter);
+        mint(_bondId, _bondToken(_bondId).balanceOf(prevMinter));
+        console.log("minter: ", prevMinter, _bondToken(_bondId).balanceOf(prevMinter));
+        burn(_bondId, _bondToken(_bondId).balanceOf(prevMinter), prevMinter);
         emit BondMinterReplacement(_bondId, _newMinter);
     }
 
     // only Owner can remove the minter of a specific bond
     function removeMint(uint _bondId) external override  onlyOwner bondExist(_bondId) notPaused(_bondId) {
-        require(block.timestamp < Bonds[_bondId].maturityDate, "Mint is linked to an active bond");
+        require(block.timestamp > Bonds[_bondId].maturityDate, "Mint is linked to an active bond");
         address minter = Bonds[_bondId].minter;
         //burn removed minter bond tokens
-        burn(_bondId, bondToken(_bondId).balanceOf(minter), minter);
+        burn(_bondId, _bondToken(_bondId).balanceOf(minter), minter);
         Bonds[_bondId].minter = address(0);
-        emit MintRemoval(_bondId, minter, bondToken(_bondId).balanceOf(minter));
+        emit MintRemoval(_bondId, minter, _bondToken(_bondId).balanceOf(minter));
     }
 
     //return the token of a specific bond based on bond id
-    function bondToken(uint _bondId) internal view bondExist(_bondId) returns (TBTokens) {
+    function _bondToken(uint _bondId) internal view bondExist(_bondId) returns (TBTokens) {
         return TBTokens(Bonds[_bondId].tokenAddress);
     }
 
     function mint(uint _bondId, uint _amount) public onlyOwner bondExist(_bondId) notPaused(_bondId) {
         require(_amount > 0, "Amount must be greater than 0");
-        bondToken(_bondId).mint(Bonds[_bondId].minter, getAmountWei(_amount));
+        _bondToken(_bondId).mint(Bonds[_bondId].minter, _amount);
     }
  
     //burn a specific bond token amount from minter balance
     function burn(uint _bondId, uint _amount, address _minter) public onlyOwner bondExist(_bondId) notPaused(_bondId){
-        require(bondToken(_bondId).balanceOf(_minter) >= getAmountWei(_amount), "Insufficient amount to burned");
-        (bool success) = bondToken(_bondId).burn(_minter, getAmountWei(_amount));
+        console.log("aaaaa: ", _bondToken(_bondId).balanceOf(_minter),_amount);
+        require(_bondToken(_bondId).balanceOf(_minter) >= _amount, "Insufficient amount to burn");
+        (bool success) = _bondToken(_bondId).burn(_minter, _amount);
         require(success, "Burn operation failed");
     }
 
@@ -199,18 +200,19 @@ contract TBImpl is Ownable, ReentrancyGuard, ITB_impl {
     // user transfer bond among themselves
     function transferBondAmongUsers(uint _bondId, uint _amount, address _receiver) external override bondExist(_bondId) notPaused(_bondId) notMatured(_bondId) {
         require( bondInterTransfer[_bondId], "Bond is not transferable");
-        require(bondToken(_bondId).balanceOf(msg.sender) >= getAmountWei(_amount), "Insufficient balance");
+        require(_bondToken(_bondId).balanceOf(msg.sender) >= _getAmountWei(_amount), "Insufficient balance");
         require(_amount >= unitPrice && _amount % unitPrice == 0, "Amount must be in multiples of unit price");
-        require(bondToken(_bondId).transfer(_receiver, getAmountWei(_amount)), "Transfer failed");
+        require(_bondToken(_bondId).transferToken(msg.sender, _receiver, _getAmountWei(_amount)), "Transfer failed");
         emit BondTransferedAmongUsers(msg.sender, _receiver, _amount);
     }
 
-    function getAmountWei(uint _amount) pure internal returns (uint){
+    function _getAmountWei(uint _amount) pure internal returns (uint){
         return _amount * 1e18;
     }
 
-    function minterBondBalance(uint _bondId, address _minter) external view returns(uint){
-        return bondToken(_bondId).balanceOf(_minter);
+    function getBalanceByBond(uint _bondId, address _user) external view returns(uint){
+        require(_user != address(0), "Address is invalid");
+        return _bondToken(_bondId).balanceOf(_user);
     }
 
 
