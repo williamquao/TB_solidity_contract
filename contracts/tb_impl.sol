@@ -108,7 +108,6 @@ contract TBImpl is Ownable, ReentrancyGuard, ITB_impl {
     function withdraw(uint _bondId, uint _amount) external override  bondExist(_bondId) notPaused(_bondId) nonReentrant {
          require(_amount >= unitPrice && _amount % unitPrice == 0, "Amount must be in multiples of unit price");
          //user approves contract to transfer a specific amount of bond token from it's wallet
-         console.log("sender.  :", msg.sender);
          require(_bondToken(_bondId).approveTokenUsage(msg.sender, address(this), _getAmountWei(_amount)), "Transfer approval failed");
          require(_bondToken(_bondId).transferFrom(msg.sender, Bonds[_bondId].minter, _getAmountWei(_amount)), "Transfer failed");
 
@@ -122,12 +121,10 @@ contract TBImpl is Ownable, ReentrancyGuard, ITB_impl {
         require(_newMinter != address(0), "Address is invalid");
         address prevMinter = Bonds[_bondId].minter;
         require(prevMinter != _newMinter, "Already current minter");
-        console.log("minter: ", prevMinter, _bondToken(_bondId).balanceOf(prevMinter));
 
         Bonds[_bondId].minter = _newMinter;
         // mint previous minter balance to new minter and burn previous minter balance
         mint(_bondId, _bondToken(_bondId).balanceOf(prevMinter));
-        console.log("minter: ", prevMinter, _bondToken(_bondId).balanceOf(prevMinter));
         burn(_bondId, _bondToken(_bondId).balanceOf(prevMinter), prevMinter);
         emit BondMinterReplacement(_bondId, _newMinter);
     }
@@ -154,7 +151,6 @@ contract TBImpl is Ownable, ReentrancyGuard, ITB_impl {
  
     //burn a specific bond token amount from minter balance
     function burn(uint _bondId, uint _amount, address _minter) public onlyOwner bondExist(_bondId) notPaused(_bondId){
-        console.log("aaaaa: ", _bondToken(_bondId).balanceOf(_minter),_amount);
         require(_bondToken(_bondId).balanceOf(_minter) >= _amount, "Insufficient amount to burn");
         (bool success) = _bondToken(_bondId).burn(_minter, _amount);
         require(success, "Burn operation failed");
