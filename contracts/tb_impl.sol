@@ -2,11 +2,10 @@
 pragma solidity ^0.8.20;
 
 
-import "./TB_tokens.sol";
-import "./ITB.sol";
+import "./tb_interface.sol";
+import "./tb_token.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
 
 
 contract TBImpl is Ownable, ReentrancyGuard, ITB_impl {
@@ -79,6 +78,7 @@ contract TBImpl is Ownable, ReentrancyGuard, ITB_impl {
 
         TBTokens token = new TBTokens(_name, _symbol, _initialSupply, bondId, _minter);
         Bonds[bondId] = Bond(_maturityDate, _initialSupply, _name, _symbol, address(token), _minter);
+        minterBonds[_minter].push(bondId);
         emit BondCreated(address(token), _minter, _name, _maturityDate, bondId);
         return (bondId, address(token));
 
