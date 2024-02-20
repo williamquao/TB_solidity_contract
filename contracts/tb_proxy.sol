@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity 0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./TB_impl.sol";
+import "./tb_impl.sol";
 
-contract TBProxy is Ownable {
+contract TBProxy is Ownable(msg.sender) {
     address public tbImplementation;
 
     constructor(address _impl) {

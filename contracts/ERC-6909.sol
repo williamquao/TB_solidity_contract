@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: CC0-1.0
-pragma solidity 0.8.19;
+pragma solidity 0.8.20;
 
 /// @title ERC6909 Multi-Token Reference Implementation
 /// @author jtriley.eth

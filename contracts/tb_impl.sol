@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity 0.8.20;
 
 import "./ERC-6909.sol";
 import "./tb_interface.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
-contract TBImpl is Ownable, ERC6909, ITB_impl, ReentrancyGuard {
+contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
     event BondCreated(
         address indexed bondMinter,
         string name,
@@ -119,7 +118,6 @@ contract TBImpl is Ownable, ERC6909, ITB_impl, ReentrancyGuard {
         isMinter(_bondId)
         notPaused(_bondId)
         notMatured(_bondId)
-        nonReentrant
     {
         require(
             _amount >= unitPrice && _amount % unitPrice == 0,
@@ -156,7 +154,7 @@ contract TBImpl is Ownable, ERC6909, ITB_impl, ReentrancyGuard {
     function withdraw(
         uint _bondId,
         uint _amount
-    ) external bondExist(_bondId) notPaused(_bondId) nonReentrant {
+    ) external bondExist(_bondId) notPaused(_bondId) {
         require(
             _amount >= unitPrice && _amount % unitPrice == 0,
             "Amount must be in multiples of unit price"
