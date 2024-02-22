@@ -349,6 +349,114 @@ describe("Tokenized bonds Test", () => {
   });
 
   describe("Bond pause", () => {
-    it("should fail if not contract owner", () => {});
+    it("should fail if caller is not contract owner", async () => {
+      await expect(
+        tbContract.connect(signers[2]).pauseBond(bondId)
+      ).to.be.rejectedWith("OwnableUnauthorizedAccount");
+    });
+    it("should fail if bond doesn't exist", async () => {
+      const nonExistentBondId = 123;
+
+      await expect(tbContract.pauseBond(nonExistentBondId)).to.rejectedWith(
+        "Bond doesn't exist"
+      );
+    });
+    it("should fail if bond is already paused", async () => {
+      await tbContract.pauseBond(bondId);
+      await expect(tbContract.pauseBond(bondId)).to.rejectedWith(
+        "Bond is paused"
+      );
+    });
+    it("should successfully pause bond", async () => {
+      await tbContract.resumeBond(bondId);
+
+      const bond = await tbContract.pauseBond(bondId);
+      expect(bond.hash).to.not.be.undefined;
+      expect(bond.hash).to.be.a("string");
+    });
+  });
+
+  describe("Bond resume", () => {
+    it("should fail if caller is not contract owner", async () => {
+      await expect(
+        tbContract.connect(signers[2]).resumeBond(bondId)
+      ).to.be.rejectedWith("OwnableUnauthorizedAccount");
+    });
+    it("should fail if bond doesn't exist", async () => {
+      const nonExistentBondId = 123;
+
+      await expect(tbContract.resumeBond(nonExistentBondId)).to.rejectedWith(
+        "Bond doesn't exist"
+      );
+    });
+    it("should fail if bond has already resume", async () => {
+      await tbContract.resumeBond(bondId);
+      await expect(tbContract.resumeBond(bondId)).to.rejectedWith(
+        "Bond not paused"
+      );
+    });
+    it("should successfully resume bond", async () => {
+      await tbContract.pauseBond(bondId);
+
+      const bond = await tbContract.resumeBond(bondId);
+      expect(bond.hash).to.not.be.undefined;
+      expect(bond.hash).to.be.a("string");
+    });
+  });
+
+  describe("Enable bond inter transfer", () => {
+    it("should fail if caller is not contract owner", async () => {
+      await expect(
+        tbContract.connect(signers[2]).enableInterTransfer(bondId)
+      ).to.be.rejectedWith("OwnableUnauthorizedAccount");
+    });
+    it("should fail if bond doesn't exist", async () => {
+      const nonExistentBondId = 123;
+
+      await expect(
+        tbContract.enableInterTransfer(nonExistentBondId)
+      ).to.rejectedWith("Bond doesn't exist");
+    });
+    it("should fail if bond already has inter transfer enabled", async () => {
+      await tbContract.enableInterTransfer(bondId);
+      await expect(tbContract.enableInterTransfer(bondId)).to.rejectedWith(
+        "Already enabled"
+      );
+    });
+    it("should successfully enable inter transfer of bonds", async () => {
+      await tbContract.disableInterTransfer(bondId);
+
+      const bond = await tbContract.enableInterTransfer(bondId);
+      expect(bond.hash).to.not.be.undefined;
+      expect(bond.hash).to.be.a("string");
+    });
+  });
+
+  describe("Disable bond inter transfer", () => {
+    it("should fail if caller is not contract owner", async () => {
+      await expect(
+        tbContract.connect(signers[2]).disableInterTransfer(bondId)
+      ).to.be.rejectedWith("OwnableUnauthorizedAccount");
+    });
+    it("should fail if bond doesn't exist", async () => {
+      const nonExistentBondId = 123;
+
+      await expect(
+        tbContract.disableInterTransfer(nonExistentBondId)
+      ).to.rejectedWith("Bond doesn't exist");
+    });
+    it("should fail if bond already has inter transfer disabled", async () => {
+      await tbContract.disableInterTransfer(bondId);
+      await expect(tbContract.disableInterTransfer(bondId)).to.rejectedWith(
+        "Already disabled"
+      );
+    });
+    it("should successfully disable inter transfer of bonds", async () => {
+      await tbContract.enableInterTransfer(bondId);
+
+      const bond = await tbContract.disableInterTransfer(bondId);
+      expect(bond.hash).to.not.be.undefined;
+      expect(bond.hash).to.be.a("string");
+    });
   });
 });
