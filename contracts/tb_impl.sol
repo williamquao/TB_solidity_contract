@@ -4,7 +4,6 @@ pragma solidity 0.8.20;
 import "./ERC-6909.sol";
 import "./tb_interface.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
 
 contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
     event BondCreated(
@@ -167,9 +166,6 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
             _amount <= balanceOf[msg.sender][_bondId],
             "Insufficient balance"
         );
-        //user approves contract to transfer a specific amount of bond token from it's wallet
-        console.log("sender :", msg.sender);
-
         require(
             transfer(Bonds[_bondId].minter, _bondId, _amount),
             "Transfer failed"
@@ -201,12 +197,10 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
         require(_newMinter != address(0), "Address is invalid");
         address prevMinter = Bonds[_bondId].minter;
         require(prevMinter != _newMinter, "Already current minter");
-        console.log("minter: ", prevMinter, balanceOf[prevMinter][_bondId]);
 
         Bonds[_bondId].minter = _newMinter;
         // mint previous minter balance to new minter and burn previous minter balance
         _mint(_newMinter, _bondId, balanceOf[prevMinter][_bondId]);
-        console.log("minter111: ", prevMinter, balanceOf[prevMinter][_bondId]);
         _burn(prevMinter, _bondId, balanceOf[prevMinter][_bondId]);
         emit BondMinterReplacement(_bondId, _newMinter);
     }

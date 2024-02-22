@@ -209,7 +209,7 @@ describe("Tokenized bonds Test", () => {
     });
 
     it("should successfully deposit asset to user", async () => {
-      const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
+      const userAddress = signers[5].getAddress();
       const deposit = await tbContract
         .connect(signers[1])
         .deposit(bondId, 5000, userAddress);
@@ -260,6 +260,52 @@ describe("Tokenized bonds Test", () => {
       await expect(
         tbContract.connect(signers[5]).withdraw(bondId, 20000000)
       ).to.rejectedWith("Insufficient balance");
+    });
+
+    it("should successfully withdraw", async () => {
+      const withdraw = await tbContract
+        .connect(signers[5])
+        .withdraw(bondId, 6000);
+      const retrieveWithdraw = await tbContract
+        .connect(signers[5])
+        .BondDepositWithdraws(bondId, 0);
+
+      expect(withdraw.hash).to.not.be.undefined;
+      expect(withdraw.hash).to.be.a("string");
+      expect(retrieveWithdraw).to.not.be.undefined;
+    });
+  });
+
+  describe("Update bond minter", () => {
+    it("should fail if bondId does't exist", async () => {
+      const nonExistentBondId = 123;
+
+      await expect(
+        tbContract.updateBondMinter(
+          nonExistentBondId,
+          await signers[2].getAddress()
+        )
+      ).to.rejectedWith("Bond doesn't exist");
+    });
+    it("should fail if bond is paused", async () => {
+      await tbContract.pauseBond(bondId);
+      await expect(
+        tbContract.updateBondMinter(bondId, await signers[2].getAddress())
+      ).to.rejectedWith("Bond is paused");
+    });
+
+    it("should fail if new minter address is invalid", async () => {
+      const invalidAddress = "0x0000000000000000000000000000000000000000";
+      await tbContract.resumeBond(bondId);
+      await expect(
+        tbContract.updateBondMinter(bondId, invalidAddress)
+      ).to.rejectedWith("Address is invalid");
+    });
+
+    it("should fail if new minter address is current minter", async () => {
+      await expect(
+        tbContract.updateBondMinter(bondId, await signers[1].getAddress())
+      ).to.rejectedWith("Already current minter");
     });
   });
 });
