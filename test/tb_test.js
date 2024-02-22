@@ -29,7 +29,7 @@ describe("Tokenized bonds Test", () => {
 
     tbProxyContract = proxyTBImpl.target;
 
-    // attach proxy to implementation
+    // attach proxy to implementation contract
     tbContract = TBImpl.attach(tbProxyContract);
   });
 
@@ -41,6 +41,7 @@ describe("Tokenized bonds Test", () => {
         "0x0000000000000000000000000000000000000000"
       );
     });
+
     it("should deploy Tokenized bond proxy contract", async () => {
       expect(tbProxyContract).to.not.be.undefined;
       expect(tbProxyContract).to.be.a("string");
@@ -184,6 +185,7 @@ describe("Tokenized bonds Test", () => {
         tbContract.connect(signers[2]).deposit(bondId, 5000, userAddress)
       ).to.rejectedWith("Caller is not minter");
     });
+
     it("should fail if bond is paused", async () => {
       await tbContract.pauseBond(bondId);
       const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
@@ -286,6 +288,7 @@ describe("Tokenized bonds Test", () => {
         )
       ).to.rejectedWith("Bond doesn't exist");
     });
+
     it("should fail if bond is paused", async () => {
       await tbContract.pauseBond(bondId);
       await expect(
@@ -354,6 +357,7 @@ describe("Tokenized bonds Test", () => {
         tbContract.connect(signers[2]).pauseBond(bondId)
       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
     });
+
     it("should fail if bond doesn't exist", async () => {
       const nonExistentBondId = 123;
 
@@ -361,12 +365,14 @@ describe("Tokenized bonds Test", () => {
         "Bond doesn't exist"
       );
     });
+
     it("should fail if bond is already paused", async () => {
       await tbContract.pauseBond(bondId);
       await expect(tbContract.pauseBond(bondId)).to.rejectedWith(
         "Bond is paused"
       );
     });
+
     it("should successfully pause bond", async () => {
       await tbContract.resumeBond(bondId);
 
@@ -382,6 +388,7 @@ describe("Tokenized bonds Test", () => {
         tbContract.connect(signers[2]).resumeBond(bondId)
       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
     });
+
     it("should fail if bond doesn't exist", async () => {
       const nonExistentBondId = 123;
 
@@ -389,12 +396,14 @@ describe("Tokenized bonds Test", () => {
         "Bond doesn't exist"
       );
     });
+
     it("should fail if bond has already resume", async () => {
       await tbContract.resumeBond(bondId);
       await expect(tbContract.resumeBond(bondId)).to.rejectedWith(
         "Bond not paused"
       );
     });
+
     it("should successfully resume bond", async () => {
       await tbContract.pauseBond(bondId);
 
@@ -410,6 +419,7 @@ describe("Tokenized bonds Test", () => {
         tbContract.connect(signers[2]).enableInterTransfer(bondId)
       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
     });
+
     it("should fail if bond doesn't exist", async () => {
       const nonExistentBondId = 123;
 
@@ -417,12 +427,14 @@ describe("Tokenized bonds Test", () => {
         tbContract.enableInterTransfer(nonExistentBondId)
       ).to.rejectedWith("Bond doesn't exist");
     });
+
     it("should fail if bond is paused", async () => {
       await tbContract.pauseBond(bondId);
       await expect(tbContract.enableInterTransfer(bondId)).to.rejectedWith(
         "Bond is paused"
       );
     });
+
     it("should fail if bond already has inter transfer enabled", async () => {
       await tbContract.resumeBond(bondId);
       await tbContract.enableInterTransfer(bondId);
@@ -430,6 +442,7 @@ describe("Tokenized bonds Test", () => {
         "Already enabled"
       );
     });
+
     it("should successfully enable inter transfer of bonds", async () => {
       await tbContract.disableInterTransfer(bondId);
 
@@ -539,7 +552,7 @@ describe("Tokenized bonds Test", () => {
       ).to.rejectedWith("Insufficient balance");
     });
 
-    it("should successfully inter transfer bonds", async () => {
+    it("should successfully inter transfer bonds amongst users", async () => {
       const interTransfer = await tbContract
         .connect(signers[5])
         .transferBondAmongUsers(bondId, 1000, await signers[7].getAddress());
