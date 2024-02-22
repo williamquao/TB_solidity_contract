@@ -163,12 +163,13 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
             _amount >= unitPrice && _amount % unitPrice == 0,
             "Amount must be in multiples of unit price"
         );
+        require(
+            _amount <= balanceOf[msg.sender][_bondId],
+            "Insufficient balance"
+        );
         //user approves contract to transfer a specific amount of bond token from it's wallet
         console.log("sender :", msg.sender);
-        require(
-            approve(address(this), _bondId, _amount),
-            "Transfer approval failed"
-        );
+
         require(
             transfer(Bonds[_bondId].minter, _bondId, _amount),
             "Transfer failed"

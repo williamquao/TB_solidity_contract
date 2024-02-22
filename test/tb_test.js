@@ -255,5 +255,11 @@ describe("Tokenized bonds Test", () => {
         tbContract.connect(signers[5]).withdraw(bondId, 2300)
       ).to.rejectedWith("Amount must be in multiples of unit price");
     });
+
+    it("should fail if insufficient balance", async () => {
+      await expect(
+        tbContract.connect(signers[5]).withdraw(bondId, 20000000)
+      ).to.rejectedWith("Insufficient balance");
+    });
   });
 });
