@@ -280,13 +280,14 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
     {
         require(bondInterTransfer[_bondId], "Bond is not transferable");
         require(
-            balanceOf[msg.sender][_bondId] >= _amount,
-            "Insufficient balance"
-        );
-        require(
             _amount >= unitPrice && _amount % unitPrice == 0,
             "Amount must be in multiples of unit price"
         );
+        require(
+            balanceOf[msg.sender][_bondId] >= _amount,
+            "Insufficient balance"
+        );
+
         require(transfer(_receiver, _bondId, _amount), "Transfer failed");
         emit BondTransferedAmongUsers(msg.sender, _receiver, _amount);
     }

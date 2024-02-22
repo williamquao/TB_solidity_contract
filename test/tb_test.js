@@ -1,6 +1,5 @@
 const { expect } = require("chai");
-const hre = require("hardhat");
-const { ethers } = require("ethers");
+const { ethers } = require("hardhat");
 
 describe("Tokenized bonds Test", () => {
   let tbContract;
@@ -14,17 +13,17 @@ describe("Tokenized bonds Test", () => {
   const invalidAddress = "0x0000000000000000000000000000000000000000";
 
   before(async () => {
-    signers = await hre.ethers.getSigners();
+    signers = await ethers.getSigners();
 
     // deploy implementation contract
-    const TBImpl = await hre.ethers.getContractFactory("TBImpl");
+    const TBImpl = await ethers.getContractFactory("TBImpl");
     const tbImpl = await TBImpl.deploy();
 
     await tbImpl.waitForDeployment();
     tbImplementationContract = tbImpl.target;
 
     // deploy implementation proxy contract
-    const ProxyTBImpl = await hre.ethers.getContractFactory("TBProxy");
+    const ProxyTBImpl = await ethers.getContractFactory("TBProxy");
     const proxyTBImpl = await ProxyTBImpl.deploy(tbImplementationContract);
     await proxyTBImpl.waitForDeployment();
 
@@ -316,6 +315,7 @@ describe("Tokenized bonds Test", () => {
       expect(newMinter.hash).to.not.be.undefined;
       expect(newMinter.hash).to.be.a("string");
     });
+
     it("should successfully replace minters from various bonds", async () => {
       const bondParam = {
         initialSupply: 100000,
@@ -417,7 +417,14 @@ describe("Tokenized bonds Test", () => {
         tbContract.enableInterTransfer(nonExistentBondId)
       ).to.rejectedWith("Bond doesn't exist");
     });
+    it("should fail if bond is paused", async () => {
+      await tbContract.pauseBond(bondId);
+      await expect(tbContract.enableInterTransfer(bondId)).to.rejectedWith(
+        "Bond is paused"
+      );
+    });
     it("should fail if bond already has inter transfer enabled", async () => {
+      await tbContract.resumeBond(bondId);
       await tbContract.enableInterTransfer(bondId);
       await expect(tbContract.enableInterTransfer(bondId)).to.rejectedWith(
         "Already enabled"
@@ -438,6 +445,7 @@ describe("Tokenized bonds Test", () => {
         tbContract.connect(signers[2]).disableInterTransfer(bondId)
       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
     });
+
     it("should fail if bond doesn't exist", async () => {
       const nonExistentBondId = 123;
 
@@ -445,18 +453,98 @@ describe("Tokenized bonds Test", () => {
         tbContract.disableInterTransfer(nonExistentBondId)
       ).to.rejectedWith("Bond doesn't exist");
     });
+
+    it("should fail if bond is paused", async () => {
+      await tbContract.pauseBond(bondId);
+      await expect(tbContract.disableInterTransfer(bondId)).to.rejectedWith(
+        "Bond is paused"
+      );
+    });
+
     it("should fail if bond already has inter transfer disabled", async () => {
+      await tbContract.resumeBond(bondId);
+
       await tbContract.disableInterTransfer(bondId);
       await expect(tbContract.disableInterTransfer(bondId)).to.rejectedWith(
         "Already disabled"
       );
     });
+
     it("should successfully disable inter transfer of bonds", async () => {
       await tbContract.enableInterTransfer(bondId);
 
       const bond = await tbContract.disableInterTransfer(bondId);
       expect(bond.hash).to.not.be.undefined;
       expect(bond.hash).to.be.a("string");
+    });
+  });
+
+  describe("Bond inter transfer amongst users", () => {
+    it("should fail if bond doesn't exist", async () => {
+      const nonExistentBondId = 123;
+
+      await expect(
+        tbContract.transferBondAmongUsers(
+          nonExistentBondId,
+          100,
+          await signers[7].getAddress()
+        )
+      ).to.rejectedWith("Bond doesn't exist");
+    });
+
+    it("should fail if bond is paused", async () => {
+      await tbContract.pauseBond(bondId);
+      await expect(
+        tbContract.transferBondAmongUsers(
+          bondId,
+          100,
+          await signers[7].getAddress()
+        )
+      ).to.rejectedWith("Bond is paused");
+    });
+
+    it("should fail if bond inter transfer is disabled", async () => {
+      await tbContract.resumeBond(bondId);
+
+      await expect(
+        tbContract.transferBondAmongUsers(
+          bondId,
+          100,
+          await signers[7].getAddress()
+        )
+      ).to.rejectedWith("Bond is not transferable");
+    });
+
+    it("should fail if amount of bond sent isn't in multiples of unit price ", async () => {
+      tbContract.enableInterTransfer(bondId);
+
+      await expect(
+        tbContract
+          .connect(signers[5])
+          .transferBondAmongUsers(bondId, 1020, await signers[7].getAddress())
+      ).to.rejectedWith("Amount must be in multiples of unit price");
+    });
+
+    it("should fail if sender's balance is insufficient", async () => {
+      tbContract.enableInterTransfer(bondId);
+
+      await expect(
+        tbContract
+          .connect(signers[5])
+          .transferBondAmongUsers(
+            bondId,
+            10000000,
+            await signers[7].getAddress()
+          )
+      ).to.rejectedWith("Insufficient balance");
+    });
+
+    it("should successfully inter transfer bonds", async () => {
+      const interTransfer = await tbContract
+        .connect(signers[5])
+        .transferBondAmongUsers(bondId, 1000, await signers[7].getAddress());
+      expect(interTransfer.hash).to.not.be.undefined;
+      expect(interTransfer.hash).to.be.a("string");
     });
   });
 });
