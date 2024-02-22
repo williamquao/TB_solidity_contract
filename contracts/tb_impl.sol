@@ -123,6 +123,10 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
             _amount >= unitPrice && _amount % unitPrice == 0,
             "Amount must be in multiples of unit price"
         );
+        require(
+            _amount <= balanceOf[msg.sender][_bondId],
+            "Insufficient balance"
+        );
         BondDepositWithdraws[_bondId].push(
             DepositWithdrawal(
                 _amount,
