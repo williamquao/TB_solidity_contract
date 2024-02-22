@@ -171,7 +171,7 @@ describe("Tokenized bonds Test", () => {
   });
 
   describe("Bond transfer from minter to User", () => {
-    it("should fail if bondId does't exist", async () => {
+    it("should fail if bondId doesn't exist", async () => {
       const nonExistentBondId = 123;
       const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
       await expect(
@@ -235,7 +235,7 @@ describe("Tokenized bonds Test", () => {
   });
 
   describe("Bond withdraw by Users", () => {
-    it("should fail if bondId does't exist", async () => {
+    it("should fail if bondId doesn't exist", async () => {
       const nonExistentBondId = 123;
       await expect(
         tbContract.connect(signers[5]).withdraw(nonExistentBondId, 5000)
@@ -276,8 +276,8 @@ describe("Tokenized bonds Test", () => {
     });
   });
 
-  describe("Update bond minter", () => {
-    it("should fail if bondId does't exist", async () => {
+  describe("Replace bond minter", () => {
+    it("should fail if bondId doesn't exist", async () => {
       const nonExistentBondId = 123;
 
       await expect(
@@ -307,5 +307,48 @@ describe("Tokenized bonds Test", () => {
         tbContract.updateBondMinter(bondId, await signers[1].getAddress())
       ).to.rejectedWith("Already current minter");
     });
+
+    it("should successfully replace minter", async () => {
+      const newMinter = await tbContract.updateBondMinter(
+        bondId,
+        await signers[2].getAddress()
+      );
+      expect(newMinter.hash).to.not.be.undefined;
+      expect(newMinter.hash).to.be.a("string");
+    });
+    it("should successfully replace minters from various bonds", async () => {
+      const bondParam = {
+        initialSupply: 100000,
+        maturityDate: 1740058156,
+        name: "CHD BOND",
+        minter: signers[4].getAddress(),
+      };
+
+      await tbContract.createBond(
+        bondParam.initialSupply,
+        bondParam.maturityDate,
+        bondParam.name,
+        bondParam.minter
+      );
+      const bondId2 = BigInt(
+        "99585765400637793826986894605043180923646758378210384443056622005821239312192"
+      );
+
+      const newMinter1 = await signers[1].getAddress();
+      const newMinter2 = await signers[3].getAddress();
+
+      const replaceMintTuples = [
+        { bondId, newMinter: newMinter1 },
+        { bondId: bondId2, newMinter: newMinter2 },
+      ];
+
+      const replaceBulk = await tbContract.replaceMintBulk(replaceMintTuples);
+      expect(replaceBulk.hash).to.not.be.undefined;
+      expect(replaceBulk.hash).to.be.a("string");
+    });
+  });
+
+  describe("Bond pause", () => {
+    it("should fail if not contract owner", () => {});
   });
 });
