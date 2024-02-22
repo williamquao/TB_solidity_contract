@@ -18,12 +18,10 @@ interface ITB_impl {
         string memory _name,
         address _minter
     ) external returns (uint);
-    function depositBulk(
-        DepositWithdrawalParams[20] calldata deposits
-    ) external;
+    function depositBulk(DepositWithdrawalParams[] calldata deposits) external;
     function withdraw(uint _bondId, uint _amount) external;
     function removeMint(uint _bondId) external;
-    function replaceMintBulk(ReplaceMintParams[20] calldata mints) external;
+    function replaceMintBulk(ReplaceMintParams[] calldata mints) external;
     function pauseBond(uint _bondId) external;
     function resumeBond(uint _bondId) external;
     function enableInterTransfer(uint _bondId) external;

@@ -7,6 +7,9 @@ describe("Tokenized bonds Test", () => {
   let tbProxyContract;
   let tbImplementationContract;
   let signers;
+  const bondId = BigInt(
+    "94728191037934580968850183277756393853664353133092476056182456800137316456183"
+  );
 
   const invalidAddress = "0x0000000000000000000000000000000000000000";
 
@@ -126,7 +129,7 @@ describe("Tokenized bonds Test", () => {
         initialSupply: 100000,
         maturityDate: 1740058156,
         name: "CMR BOND",
-        minter: signers[3].getAddress(),
+        minter: signers[1].getAddress(),
       };
 
       await expect(
@@ -144,9 +147,7 @@ describe("Tokenized bonds Test", () => {
           bondParam.minter,
           bondParam.name,
           bondParam.maturityDate,
-          BigInt(
-            "94728191037934580968850183277756393853664353133092476056182456800137316456183"
-          )
+          bondId
         );
     });
 
@@ -167,5 +168,104 @@ describe("Tokenized bonds Test", () => {
         )
       ).to.be.rejectedWith("Bond already exist");
     });
+  });
+
+  describe("Bond transfer from minter to User", () => {
+    it("should fail if bondId does't exist", async () => {
+      const nonExistentBondId = 123;
+      const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
+      await expect(
+        tbContract.deposit(nonExistentBondId, 5000, userAddress)
+      ).to.rejectedWith("Bond doesn't exist");
+    });
+
+    it("should fail if sender is not minter", async () => {
+      const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
+      await expect(
+        tbContract.connect(signers[2]).deposit(bondId, 5000, userAddress)
+      ).to.rejectedWith("Caller is not minter");
+    });
+    it("should fail if bond is paused", async () => {
+      await tbContract.pauseBond(bondId);
+      const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
+      await expect(
+        tbContract.connect(signers[1]).deposit(bondId, 5000, userAddress)
+      ).to.rejectedWith("Bond is paused");
+    });
+
+    it("should fail if amount is not in multiple of unit price", async () => {
+      await tbContract.resumeBond(bondId);
+      const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
+      await expect(
+        tbContract.connect(signers[1]).deposit(bondId, 5200, userAddress)
+      ).to.rejectedWith("Amount must be in multiples of unit price");
+    });
+
+    it("should successfully deposit asset to user", async () => {
+      const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
+      const deposit = await tbContract
+        .connect(signers[1])
+        .deposit(bondId, 5000, userAddress);
+      expect(deposit.hash).to.not.be.undefined;
+      expect(deposit.hash).to.be.a("string");
+    });
+
+    it("should successfully deposit asset to user", async () => {
+      const user1 = await signers[5].getAddress();
+      const user2 = await signers[6].getAddress();
+
+      const depositsTuples = [
+        { bondId, amount: 5000, user: user1 },
+        { bondId, amount: 2000, user: user2 },
+      ];
+
+      console.log(depositsTuples);
+
+      const deposit = await tbContract
+        .connect(signers[1])
+        .depositBulk(depositsTuples);
+      expect(deposit.hash).to.not.be.undefined;
+      expect(deposit.hash).to.be.a("string");
+    });
+
+    //   const now = new Date();
+    //   const bondParam = {
+    //     initialSupply: 100000,
+    //     maturityDate: Math.floor(now.setHours(now.getHours() + 1) / 1000),
+    //     name: "TST Bond",
+    //     minter: signers[1].getAddress(),
+    //   };
+    //   console.log(Math.floor(Date.now() / 1000));
+    //   await expect(
+    //     tbContract
+    //       .connect(signers[0])
+    //       .createBond(
+    //         bondParam.initialSupply,
+    //         bondParam.maturityDate,
+    //         "TST Bond",
+    //         bondParam.minter
+    //       )
+    //   )
+    //     .to.emit(tbContract, "BondCreated")
+    //     .withArgs(
+    //       bondParam.minter,
+    //       bondParam.name,
+    //       bondParam.maturityDate,
+    //       bondId
+    //     );
+
+    //   const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
+    //   await expect(
+    //     tbContract
+    //       .connect(signers[1])
+    //       .deposit(
+    //         BigInt(
+    //           "52731450960094209641020563191909057115345837530747170856436412297202162201356"
+    //         ),
+    //         5000,
+    //         userAddress
+    //       )
+    //   ).to.rejectedWith("Bond is mature");
+    // });
   });
 });

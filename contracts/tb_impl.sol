@@ -60,7 +60,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
     modifier notMatured(uint _bondId) {
         require(
             block.timestamp < Bonds[_bondId].maturityDate,
-            "Bond is matured"
+            "Bond is mature"
         );
         _;
     }
@@ -76,7 +76,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
     }
 
     modifier isMinter(uint _bondId) {
-        require(Bonds[_bondId].minter == msg.sender, "Is not minter");
+        require(Bonds[_bondId].minter == msg.sender, "Caller is not minter");
         _;
     }
 
@@ -139,7 +139,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
 
     // minter can do a bulk deposit to max 20 users
     function depositBulk(
-        DepositWithdrawalParams[20] calldata deposits
+        DepositWithdrawalParams[] calldata deposits
     ) external override {
         for (uint256 i = 0; i < deposits.length; i++) {
             uint256 bondId = deposits[i].bondId;
@@ -223,7 +223,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
 
     //replace minters in bulk with respect to associated bond
     function replaceMintBulk(
-        ReplaceMintParams[20] calldata mints
+        ReplaceMintParams[] calldata mints
     ) external override onlyOwner {
         for (uint256 i = 0; i < mints.length; i++) {
             uint bondId = mints[i].bondId;
