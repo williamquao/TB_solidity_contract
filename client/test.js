@@ -1,8 +1,13 @@
 const { ProxyContractHandler } = require("./proxy_handler");
+const hre = require("hardhat");
 
 async function exampleUsage() {
+  let tbImplementationArtifacts = await hre.artifacts.readArtifact("TBImpl");
   const privateKey = process.env.PRIVATE_KEY;
-  const tbClient = new ProxyContractHandler(privateKey);
+  const tbClient = new ProxyContractHandler(
+    privateKey,
+    tbImplementationArtifacts.abi
+  );
 
   // Example: Create a bond through the proxy
   const bondParam = {
@@ -11,8 +16,9 @@ async function exampleUsage() {
     name: "MyBond",
     minter: "0x40C5537f8b415099278021C5fAaB68989b757e4D", // Replace with the actual minter address
   };
+  console.log(tbClient);
 
-  await tbClient.createBond(bondParam);
+  await tbClient.callImplementationFunction("createBond", bondParam);
 }
 
 // Call the example usage

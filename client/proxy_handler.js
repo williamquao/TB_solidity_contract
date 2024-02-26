@@ -1,11 +1,15 @@
 const ethers = require("ethers");
 require("dotenv").config();
-const implementationAbi = "../implementation_abi.js";
+let implementationAbi;
 const proxyContractAddress = process.env.PROXY_CONTRACT;
-const provider = new ethers.providers.JsonRpcProvider(process.env.SEPOLIA_URL);
+const provider = new ethers.AlchemyProvider(
+  process.env.TESTNET,
+  process.env.APIKEY
+);
 
 class ProxyContractHandler {
-  constructor(privateKey) {
+  constructor(privateKey, abi) {
+    implementationAbi = abi;
     this.wallet = new ethers.Wallet(privateKey, provider);
     this.proxy = new ethers.Contract(
       proxyContractAddress,
@@ -21,10 +25,19 @@ class ProxyContractHandler {
     console.log("Upgrade successful");
   }
 
-  async callImplementationFunction(functionName, functionParams) {
-    const result = await this.proxy[functionName](...functionParams);
+  async callImplementationFunction(functionName, bondParam) {
+    const { initialSupply, maturityDate, name, minter } = bondParam;
+
+    const result = await this.proxy[functionName](
+      initialSupply,
+      maturityDate,
+      name,
+      minter
+    );
     console.log("Function Result:", result);
 
     return result;
   }
 }
+
+module.exports = { ProxyContractHandler };
