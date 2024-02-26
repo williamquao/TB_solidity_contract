@@ -34,6 +34,7 @@ class ProxyContractHandler {
       name,
       minter
     );
+    await result.wait();
     console.log("Function Result:", result);
 
     return result;
