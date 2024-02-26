@@ -1,4 +1,3 @@
-const ethers = require("ether");
 require("dotenv").config();
 
 export class TBClient {
@@ -7,13 +6,13 @@ export class TBClient {
   }
 
   async createBond(bondParam) {
-    const { initialSupply, maturityDate, name, minter } = bondParam;
+    // const { initialSupply, maturityDate, name, minter } = bondParam;
     const functionName = "createBond";
     const result = await this.proxyContractHandler.callImplementationFunction(
       functionName,
       bondParam
     );
-    console.log("CreateBond Function Result:", result);
+    console.log("CreateBond Result:", result);
     return result;
   }
 }

@@ -2,9 +2,9 @@ const ethers = require("ethers");
 require("dotenv").config();
 const implementationAbi = "../implementation_abi.js";
 const proxyContractAddress = process.env.PROXY_CONTRACT;
-const provider = new ethers.providers.JsonRpcProvider(dotenv.pr);
+const provider = new ethers.providers.JsonRpcProvider(process.env.SEPOLIA_URL);
 
-export class ProxyContractHandler {
+class ProxyContractHandler {
   constructor(privateKey) {
     this.wallet = new ethers.Wallet(privateKey, provider);
     this.proxy = new ethers.Contract(
