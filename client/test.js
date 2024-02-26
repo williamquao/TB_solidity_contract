@@ -16,7 +16,6 @@ async function test() {
     name: "JKBond", //Replace this with the actual bond name
     minter: "0x40C5537f8b415099278021C5fAaB68989b757e4D", // Replace with the actual minter address
   };
-  console.log(tbClient);
 
   await tbClient.callImplementationFunction("createBond", bondParam);
 }
