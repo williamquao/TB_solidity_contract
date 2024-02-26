@@ -1,11 +1,12 @@
 const ethers = require("ethers");
 require("dotenv").config();
 const implementationAbi = "../implementation_abi.js";
-const proxyContractAddress = "0xYourContractAddress";
+const proxyContractAddress = process.env.PROXY_CONTRACT;
+const provider = new ethers.providers.JsonRpcProvider(dotenv.pr);
 
 export class ProxyContractHandler {
   constructor(privateKey) {
-    this.wallet = new ethers.Wallet(privateKey);
+    this.wallet = new ethers.Wallet(privateKey, provider);
     this.proxy = new ethers.Contract(
       proxyContractAddress,
       implementationAbi,
