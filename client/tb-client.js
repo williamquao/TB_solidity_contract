@@ -1,6 +1,7 @@
+const { ProxyContractHandler } = require("./proxy_handler");
 require("dotenv").config();
 
-export class TBClient {
+class TBClient {
   constructor(privateKey) {
     this.proxyContractHandler = new ProxyContractHandler(privateKey);
   }
@@ -55,15 +56,18 @@ export class TBClient {
   async deposit(depositParam) {
     try {
       const functionName = "deposit";
+      console.log("aaaaaaaa: ", depositParam);
+      const { bondId, amount, receiver } = depositParam;
       const deposit =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          depositParam
+          { bondId, amount, receiver }
         );
+
       const hash = await deposit?.hash;
       return hash;
     } catch (error) {
-      return "Operation failed";
+      return "Operation failed: " + error;
     }
   }
 
@@ -80,6 +84,9 @@ export class TBClient {
           functionName,
           depositParamList
         );
+
+      console.log("111111: ", deposit);
+
       const hash = await deposit?.hash;
       return hash;
     } catch (error) {
@@ -267,3 +274,5 @@ export class TBClient {
     }
   }
 }
+
+module.exports = { TBClient };

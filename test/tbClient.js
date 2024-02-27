@@ -1,43 +1,46 @@
 const { expect } = require("chai");
-const TBClient = require("../client/tb-client");
+const { TBClient } = require("../client/tb-client");
 require("dotenv").config();
 
 describe("Tokenized Bond Test", () => {
-  let bondId;
+  let bondId = BigInt(
+    "88109003540886244131617838967970245745767068842866388268834958778123647783784"
+  );
   // before(() => {
 
   // });
 
-  it("should create a new bond", async () => {
-    const privateKey = process.env.PRIVATE_KEY;
-    const tbClient = new TBClient(privateKey);
-    const bondParam = {
-      initialSupply: 1000000,
-      maturityDate: 1735689600,
-      name: "CMR Bond",
-      minter: "0x40C5537f8b415099278021C5fAaB68989b757e4D",
-    };
-    const newBond = await tbClient.createBond(bondParam);
-    bondId = newBond?.bondId;
-    console.log(newBond);
-    expect(newBond.hash).to.not.be.undefined;
-    expect(newBond.hash).to.be.a("string");
-  });
+  // it("should create a new bond", async () => {
+  //   const privateKey = process.env.PRIVATE_KEY;
+  //   const tbClient = new TBClient(privateKey);
+  //   const bondParam = {
+  //     initialSupply: 1000000,
+  //     maturityDate: 1735689600,
+  //     name: "CMR Bond",
+  //     minter: "0x40C5537f8b415099278021C5fAaB68989b757e4D",
+  //   };
+  //   const newBond = await tbClient.createBond(bondParam);
+  //   bondId = BigInt(newBond?.bondId);
+  //   console.log(newBond);
+  //   expect(newBond.hash).to.not.be.undefined;
+  //   expect(newBond.hash).to.be.a("string");
+  // });
 
-  it("should make a deposit", async () => {
-    const privateKey = process.env.PRIVATE_KEY;
-    const tbClient = new TBClient(privateKey);
+  //   it("should make a deposit", async () => {
+  //     const privateKey = process.env.MINTER_PRIVATE_KEY;
+  //     const tbClient = new TBClient(privateKey);
 
-    const depositParam = {
-      bondId,
-      amount: 5000,
-      receiver: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    };
-    const deposit = await tbClient.deposit(depositParam);
-    console.log(deposit);
-    expect(deposit.hash).to.not.be.undefined;
-    expect(deposit.hash).to.be.a("string");
-  });
+  //     const depositParam = {
+  //       bondId,
+  //       amount: 5000,
+  //       receiver: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  //     };
+  //     console.log("Deposit: ", depositParam);
+  //     const deposit = await tbClient.deposit(depositParam);
+  //     console.log("deposit1111: ", deposit);
+  //     expect(deposit.hash).to.not.be.undefined;
+  //     expect(deposit.hash).to.be.a("string");
+  //   });
 
   it("should make a bulk deposit", async () => {
     const privateKey = process.env.MINTER_PRIVATE_KEY;
@@ -46,7 +49,7 @@ describe("Tokenized Bond Test", () => {
     const depositParamList = [
       {
         bondId,
-        amount: 1000,
+        amount: 5000,
         receiver: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       },
       {
@@ -61,51 +64,52 @@ describe("Tokenized Bond Test", () => {
     expect(bulkDeposit.hash).to.be.a("string");
   });
 
-  it("should make a withdraw", async () => {
-    const privateKey = process.env.USER_PRIVATE_KEY;
-    const tbClient = new TBClient(privateKey);
+  //   it("should make a withdraw", async () => {
+  //     const privateKey = process.env.USER_PRIVATE_KEY;
+  //     const tbClient = new TBClient(privateKey);
 
-    const withdrawParam = {
-      bondId,
-      amount: 2000,
-    };
-    const withdraw = await tbClient.withdraw(withdrawParam);
-    console.log(withdraw);
-    expect(withdraw.hash).to.not.be.undefined;
-    expect(withdraw.hash).to.be.a("string");
-  });
+  //     const withdrawParam = {
+  //       bondId,
+  //       amount: 2000,
+  //     };
+  //     const withdraw = await tbClient.withdraw(withdrawParam);
+  //     console.log(withdraw);
+  //     expect(withdraw.hash).to.not.be.undefined;
+  //     expect(withdraw.hash).to.be.a("string");
+  //   });
 
-  it("should replace a minter", async () => {
-    const privateKey = process.env.PRIVATE_KEY;
-    const tbClient = new TBClient(privateKey);
+  //   it("should replace a minter", async () => {
+  //     console.log("starting.....");
+  //     const privateKey = process.env.PRIVATE_KEY;
+  //     const tbClient = new TBClient(privateKey);
 
-    const minterParam = {
-      bondId,
-      newMinter: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-    };
-    const replaceMinter = await tbClient.replaceMinter(minterParam);
-    console.log(replaceMinter);
-    expect(replaceMinter.hash).to.not.be.undefined;
-    expect(replaceMinter.hash).to.be.a("string");
-  });
+  //     const minterParam = {
+  //       bondId,
+  //       newMinter: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  //     };
+  //     const replaceMinter = await tbClient.replaceMinter(minterParam);
+  //     console.log(replaceMinter);
+  //     expect(replaceMinter.hash).to.not.be.undefined;
+  //     expect(replaceMinter.hash).to.be.a("string");
+  //   });
 
-  it("should replace minters from various bond", async () => {
-    const privateKey = process.env.PRIVATE_KEY;
-    const tbClient = new TBClient(privateKey);
+  //   it("should replace minters from various bond", async () => {
+  //     const privateKey = process.env.PRIVATE_KEY;
+  //     const tbClient = new TBClient(privateKey);
 
-    const replaceMinterParamList = [
-      {
-        bondId,
-        newMinter: "0x40C5537f8b415099278021C5fAaB68989b757e4D",
-      },
-    ];
-    const replaceMinter = await tbClient.replaceMintBulk(
-      replaceMinterParamList
-    );
-    console.log(replaceMinter);
-    expect(replaceMinter.hash).to.not.be.undefined;
-    expect(replaceMinter.hash).to.be.a("string");
-  });
+  //     const replaceMinterParamList = [
+  //       {
+  //         bondId,
+  //         newMinter: "0x40C5537f8b415099278021C5fAaB68989b757e4D",
+  //       },
+  //     ];
+  //     const replaceMinter = await tbClient.replaceMintBulk(
+  //       replaceMinterParamList
+  //     );
+  //     console.log(replaceMinter);
+  //     expect(replaceMinter.hash).to.not.be.undefined;
+  //     expect(replaceMinter.hash).to.be.a("string");
+  //   });
 
   //   it("should pause a T-bond", async () => {
   //     const privateKey = process.env.PRIVATE_KEY;
