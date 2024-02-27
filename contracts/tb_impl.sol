@@ -9,17 +9,19 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
     event BondCreated(
         address indexed bondMinter,
         string name,
-        uint32 maturityDate,
+        uint32 indexed maturityDate,
+        uint indexed initialSupply,
         uint bondId
     );
     event TransferWithdrawal(
         address indexed sender,
         address indexed receiver,
-        uint bondId,
-        uint amount
+        uint indexed bondId,
+        uint indexed amount,
+        Status indexed status
     );
-    event BondMinterReplacement(uint bondId, address indexed newMinter);
-    event MintRemoval(uint bondId, address indexed newMinter, uint amount);
+    event BondMinterReplacement(uint indexed bondId, address indexed newMinter);
+    event MintRemoval(uint indexed bondId, address indexed newMinter, uint amount);
     event IsBondPaused(uint bondId, bool isPaused);
     event IsBondInterTransferAllowed(uint bondId, bool isTransferable);
     event BondTransferedAmongUsers(
@@ -102,7 +104,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
         _mint(_minter, bondId, _initialSupply);
         Bonds[bondId] = Bond(_maturityDate, _initialSupply, _name, _minter);
         minterBonds[_minter].push(bondId);
-        emit BondCreated(_minter, _name, _maturityDate, bondId);
+        emit BondCreated(_minter, _name, _maturityDate, _initialSupply, bondId);
         return bondId;
     }
 
@@ -137,7 +139,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
         );
         bool success = transfer(_user, _bondId, _amount);
         require(success, "Transfer failed");
-        emit TransferWithdrawal(msg.sender, _user, _bondId, _amount);
+        emit TransferWithdrawal(msg.sender, _user, _bondId, _amount, Status.DEPOSIT);
     }
 
     // minter can do a bulk deposit to max 20 users
@@ -185,7 +187,8 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
             msg.sender,
             Bonds[_bondId].minter,
             _bondId,
-            _amount
+            _amount,
+            Status.WITHDRAW
         );
     }
 

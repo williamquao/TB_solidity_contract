@@ -147,6 +147,7 @@ describe("Tokenized bonds Test", () => {
           bondParam.minter,
           bondParam.name,
           bondParam.maturityDate,
+          bondParam.initialSupply,
           bondId
         );
     });
