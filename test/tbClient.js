@@ -45,7 +45,7 @@ describe("Tokenized Bond Test", () => {
       },
       {
         bondId,
-        amount: 8000,
+        amount: 7000,
         user: "0x9Acb258AC76a757744A05D93FE7cE8E5dcb267A6",
       },
     ];
