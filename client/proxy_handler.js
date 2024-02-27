@@ -1,6 +1,7 @@
 const ethers = require("ethers");
 require("dotenv").config();
-let implementationAbi;
+const implementationAbi = require("../implementationAbi");
+
 const proxyContractAddress = process.env.PROXY_CONTRACT;
 const provider = new ethers.AlchemyProvider(
   process.env.TESTNET,
@@ -8,34 +9,36 @@ const provider = new ethers.AlchemyProvider(
 );
 
 class ProxyContractHandler {
-  constructor(privateKey, abi) {
-    implementationAbi = abi;
+  constructor(privateKey) {
     this.wallet = new ethers.Wallet(privateKey, provider);
-    this.proxy = new ethers.Contract(
+    this.proxyContract = new ethers.Contract(
       proxyContractAddress,
       implementationAbi,
       this.wallet
     );
   }
 
-  async upgradeTo(newImplementationAddress) {
-    const transaction = await this.proxy.upgradeTo(newImplementationAddress);
+  async upgradeImplementation(newImplementationAddress) {
+    const transaction = await this.proxyContract.upgradeImpl(
+      newImplementationAddress
+    );
     await transaction.wait();
 
     console.log("Upgrade successful");
+    return transaction?.hash;
   }
 
   async callImplementationFunction(functionName, bondParam) {
     const { initialSupply, maturityDate, name, minter } = bondParam;
 
-    const result = await this.proxy[functionName](
+    const result = await this.proxyContract[functionName](
       initialSupply,
       maturityDate,
       name,
       minter
     );
     await result.wait();
-    console.log("Function Result:", result);
+    console.log(`${functionName} Result:`, result);
 
     return result;
   }

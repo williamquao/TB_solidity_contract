@@ -5,8 +5,10 @@ const hre = require("hardhat");
 async function main() {
   const url = process.env.SEPOLIA_URL;
   const privateKey = process.env.PRIVATE_KEY;
-  console.log(url);
-  const provider = new ethers.JsonRpcProvider(url);
+  const provider = new ethers.AlchemyProvider(
+    process.env.TESTNET,
+    process.env.APIKEY
+  );
 
   let wallet = new ethers.Wallet(privateKey, provider);
 

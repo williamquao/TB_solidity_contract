@@ -16,8 +16,8 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
     event TransferWithdrawal(
         address indexed sender,
         address indexed receiver,
-        uint indexed bondId,
-        uint indexed amount,
+        uint bondId,
+        uint amount,
         Status indexed status
     );
     event BondMinterReplacement(uint indexed bondId, address indexed newMinter);
