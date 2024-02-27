@@ -28,15 +28,16 @@ class ProxyContractHandler {
     return transaction?.hash;
   }
 
-  async callImplementationFunction(functionName, bondParam) {
-    const { initialSupply, maturityDate, name, minter } = bondParam;
+  async callImplementationFunction(functionName, params) {
+    let result;
+    if (Array.isArray(params)) {
+      result = await this.proxyContract[functionName](params);
+    } else if (typeof params === "object") {
+      result = await this.proxyContract[functionName](...Object.values(params));
+    } else {
+      result = await this.proxyContract[functionName](params);
+    }
 
-    const result = await this.proxyContract[functionName](
-      initialSupply,
-      maturityDate,
-      name,
-      minter
-    );
     await result.wait();
     console.log(`${functionName} Result:`, result);
 

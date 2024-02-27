@@ -56,12 +56,10 @@ class TBClient {
   async deposit(depositParam) {
     try {
       const functionName = "deposit";
-      console.log("aaaaaaaa: ", depositParam);
-      const { bondId, amount, receiver } = depositParam;
       const deposit =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          { bondId, amount, receiver }
+          depositParam
         );
 
       const hash = await deposit?.hash;
@@ -85,12 +83,10 @@ class TBClient {
           depositParamList
         );
 
-      console.log("111111: ", deposit);
-
       const hash = await deposit?.hash;
       return hash;
     } catch (error) {
-      return "Operation failed";
+      return "Operation failed: " + error;
     }
   }
 
@@ -111,7 +107,7 @@ class TBClient {
       const hash = await withdraw?.hash;
       return hash;
     } catch (error) {
-      return "Operation failed";
+      return "Operation failed: " + error;
     }
   }
 
@@ -132,7 +128,7 @@ class TBClient {
       const hash = await replaceMinter?.hash;
       return hash;
     } catch (error) {
-      return "Operation failed";
+      return "Operation failed: " + error;
     }
   }
 
@@ -153,7 +149,7 @@ class TBClient {
       const hash = await replaceMintBulk?.hash;
       return hash;
     } catch (error) {
-      return "Operation failed";
+      return "Operation failed: " + error;
     }
   }
 
@@ -172,7 +168,7 @@ class TBClient {
       const hash = await removeMint?.hash;
       return hash;
     } catch (error) {
-      return "Operation failed";
+      return "Operation failed: " + error;
     }
   }
 
@@ -191,7 +187,7 @@ class TBClient {
       const hash = await pauseBond?.hash;
       return hash;
     } catch (error) {
-      return "Operation failed";
+      return "Operation failed: " + error;
     }
   }
 
@@ -210,7 +206,7 @@ class TBClient {
       const hash = await resumeBond?.hash;
       return hash;
     } catch (error) {
-      return "Operation failed";
+      return "Operation failed: " + error;
     }
   }
 
@@ -229,7 +225,7 @@ class TBClient {
       const hash = await enableInterTransfer?.hash;
       return hash;
     } catch (error) {
-      return "Operation failed";
+      return "Operation failed: " + error;
     }
   }
 
@@ -248,7 +244,7 @@ class TBClient {
       const hash = await disableInterTransfer?.hash;
       return hash;
     } catch (error) {
-      return "Operation failed";
+      return "Operation failed: " + error;
     }
   }
 
@@ -270,7 +266,7 @@ class TBClient {
       const hash = await transferBondAmongUsers?.hash;
       return hash;
     } catch (error) {
-      return "Operation failed";
+      return "Operation failed: " + error;
     }
   }
 }
