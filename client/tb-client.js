@@ -23,7 +23,7 @@ export class TBClient {
           bondParam
         );
 
-      const operationTrx = await newBond?.hash;
+      const hash = await newBond?.hash;
 
       const filter =
         this.proxyContractHandler.proxyContract.filters.BondCreated(
@@ -39,9 +39,9 @@ export class TBClient {
       );
 
       const bondId = events[0]?.args[4].toString();
-      return { operationTrx, bondId };
+      return { hash, bondId };
     } catch (e) {
-      return "Operation failed";
+      return "Operation failed: " + e;
     }
   }
 
@@ -60,8 +60,8 @@ export class TBClient {
           functionName,
           depositParam
         );
-      const operationTrx = await deposit?.hash;
-      return operationTrx;
+      const hash = await deposit?.hash;
+      return hash;
     } catch (error) {
       return "Operation failed";
     }
@@ -80,8 +80,8 @@ export class TBClient {
           functionName,
           depositParamList
         );
-      const operationTrx = await deposit?.hash;
-      return operationTrx;
+      const hash = await deposit?.hash;
+      return hash;
     } catch (error) {
       return "Operation failed";
     }
@@ -101,8 +101,8 @@ export class TBClient {
           functionName,
           withdrawParam
         );
-      const operationTrx = await withdraw?.hash;
-      return operationTrx;
+      const hash = await withdraw?.hash;
+      return hash;
     } catch (error) {
       return "Operation failed";
     }
@@ -122,8 +122,8 @@ export class TBClient {
           functionName,
           minterParam
         );
-      const operationTrx = await replaceMinter?.hash;
-      return operationTrx;
+      const hash = await replaceMinter?.hash;
+      return hash;
     } catch (error) {
       return "Operation failed";
     }
@@ -143,8 +143,8 @@ export class TBClient {
           functionName,
           replaceMinterParamList
         );
-      const operationTrx = await replaceMintBulk?.hash;
-      return operationTrx;
+      const hash = await replaceMintBulk?.hash;
+      return hash;
     } catch (error) {
       return "Operation failed";
     }
@@ -162,8 +162,8 @@ export class TBClient {
           functionName,
           bondId
         );
-      const operationTrx = await removeMint?.hash;
-      return operationTrx;
+      const hash = await removeMint?.hash;
+      return hash;
     } catch (error) {
       return "Operation failed";
     }
@@ -181,8 +181,8 @@ export class TBClient {
           functionName,
           bondId
         );
-      const operationTrx = await pauseBond?.hash;
-      return operationTrx;
+      const hash = await pauseBond?.hash;
+      return hash;
     } catch (error) {
       return "Operation failed";
     }
@@ -200,8 +200,8 @@ export class TBClient {
           functionName,
           bondId
         );
-      const operationTrx = await resumeBond?.hash;
-      return operationTrx;
+      const hash = await resumeBond?.hash;
+      return hash;
     } catch (error) {
       return "Operation failed";
     }
@@ -219,8 +219,8 @@ export class TBClient {
           functionName,
           bondId
         );
-      const operationTrx = await resumeBond?.hash;
-      return operationTrx;
+      const hash = await resumeBond?.hash;
+      return hash;
     } catch (error) {
       return "Operation failed";
     }
@@ -238,8 +238,8 @@ export class TBClient {
           functionName,
           bondId
         );
-      const operationTrx = await enableInterTransfer?.hash;
-      return operationTrx;
+      const hash = await enableInterTransfer?.hash;
+      return hash;
     } catch (error) {
       return "Operation failed";
     }
@@ -257,8 +257,8 @@ export class TBClient {
           functionName,
           bondId
         );
-      const operationTrx = await disableInterTransfer?.hash;
-      return operationTrx;
+      const hash = await disableInterTransfer?.hash;
+      return hash;
     } catch (error) {
       return "Operation failed";
     }
@@ -279,8 +279,8 @@ export class TBClient {
           functionName,
           transferParam
         );
-      const operationTrx = await transferBondAmongUsers?.hash;
-      return operationTrx;
+      const hash = await transferBondAmongUsers?.hash;
+      return hash;
     } catch (error) {
       return "Operation failed";
     }
