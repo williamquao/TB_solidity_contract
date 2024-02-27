@@ -211,25 +211,6 @@ export class TBClient {
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async resumeBond(bondId) {
-    try {
-      const functionName = "resumeBond";
-      const resumeBond =
-        await this.proxyContractHandler.callImplementationFunction(
-          functionName,
-          bondId
-        );
-      const hash = await resumeBond?.hash;
-      return hash;
-    } catch (error) {
-      return "Operation failed";
-    }
-  }
-
-  /**
-   * @param {bigInt} bondId - The tokenized bond id
-   * @returns {string} - The operation hash
-   */
   async enableInterTransfer(bondId) {
     try {
       const functionName = "enableInterTransfer";
