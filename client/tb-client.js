@@ -206,4 +206,83 @@ export class TBClient {
       return "Operation failed";
     }
   }
+
+  /**
+   * @param {bigInt} bondId - The tokenized bond id
+   * @returns {string} - The operation hash
+   */
+  async resumeBond(bondId) {
+    try {
+      const functionName = "resumeBond";
+      const resumeBond =
+        await this.proxyContractHandler.callImplementationFunction(
+          functionName,
+          bondId
+        );
+      const operationTrx = await resumeBond?.hash;
+      return operationTrx;
+    } catch (error) {
+      return "Operation failed";
+    }
+  }
+
+  /**
+   * @param {bigInt} bondId - The tokenized bond id
+   * @returns {string} - The operation hash
+   */
+  async enableInterTransfer(bondId) {
+    try {
+      const functionName = "enableInterTransfer";
+      const enableInterTransfer =
+        await this.proxyContractHandler.callImplementationFunction(
+          functionName,
+          bondId
+        );
+      const operationTrx = await enableInterTransfer?.hash;
+      return operationTrx;
+    } catch (error) {
+      return "Operation failed";
+    }
+  }
+
+  /**
+   * @param {bigInt} bondId - The tokenized bond id
+   * @returns {string} - The operation hash
+   */
+  async disableInterTransfer(bondId) {
+    try {
+      const functionName = "disableInterTransfer";
+      const disableInterTransfer =
+        await this.proxyContractHandler.callImplementationFunction(
+          functionName,
+          bondId
+        );
+      const operationTrx = await disableInterTransfer?.hash;
+      return operationTrx;
+    } catch (error) {
+      return "Operation failed";
+    }
+  }
+
+  /**
+   * transferParam
+   * @param {bigInt} bondId - The tokenized bond id
+   * @param {number} amount - The amount transferred
+   * @param {string} receiver - The receiver address
+   * @returns {string} - The operation hash
+   */
+  async transferBondAmongUsers(transferParam) {
+    try {
+      const functionName = "transferBondAmongUsers";
+      const transferBondAmongUsers =
+        await this.proxyContractHandler.callImplementationFunction(
+          functionName,
+          transferParam
+        );
+      const operationTrx = await transferBondAmongUsers?.hash;
+      return operationTrx;
+    } catch (error) {
+      return "Operation failed";
+    }
+  }
 }
