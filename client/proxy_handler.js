@@ -30,9 +30,8 @@ class ProxyContractHandler {
 
   async callImplementationFunction(functionName, params) {
     let result;
-    if (Array.isArray(params)) {
-      result = await this.proxyContract[functionName](params);
-    } else if (typeof params === "object") {
+
+    if (typeof params === "object") {
       result = await this.proxyContract[functionName](...Object.values(params));
     } else {
       result = await this.proxyContract[functionName](params);
