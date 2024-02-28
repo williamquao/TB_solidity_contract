@@ -7,8 +7,8 @@ class TBClient {
   }
 
   /**
-   // TODO: This is used to create new bonds
-   * //* Only contract owner can make this call
+   * //* This function is used to create new bonds
+     //! Only contract owner can make this call
    * bondParam
    * @param {number} initialSupply - The total supply of the bond
    * @param {timestamp} maturityDate - The bond maturity date
@@ -50,8 +50,8 @@ class TBClient {
   }
 
   /**
-    // TODO: This function is used by minter to send bond tokens to user address
-   * //* Only minters can make this call
+   * //* This function is used by minter to send bond tokens to user address
+     //! Only minters can make this call
    * depositParam
    * @param {bigInt} bondId - The tokenized bond id
    * @param {number} amount - The amount to deposit to user
@@ -75,8 +75,8 @@ class TBClient {
   }
 
   /**
-    // TODO: This function is used used by minter to send bond tokens to various user addresses
-   * //* Only minters can make this call
+   * //* This function is used used by minter to send bond tokens to various user addresses
+     //! Only minters can make this call
    * depositParamList
    * @param {Array<{ bondId: bigInt, amount: number, receiver: string }>} depositParamList
    * @returns {string} - The operation hash
@@ -98,8 +98,8 @@ class TBClient {
   }
 
   /**
-    // TODO: This function is used used by users to make a withdraw
-   * //* Anyone can make this call
+   * //* This function is used used by users to make a withdraw
+   //!  Anyone with bond tokens can make this call
    * withdrawParam
    * @param {bigInt} bondId - The tokenized bond id
    * @param {number} amount - The amount to deposit to user
@@ -121,8 +121,8 @@ class TBClient {
   }
 
   /**
-   // TODO: This function is used to replace a bond minter
-   * //* Only Contract owner can make this call
+   * //* This function is used to replace a bond minter
+     //! Only Contract owner can make this call
    * minterParam
    * @param {bigInt} bondId - The tokenized bond id
    * @param {string} newMinter - The new tokenized bond minter
@@ -144,8 +144,8 @@ class TBClient {
   }
 
   /**
-    // TODO: This function is used to replace various bond minters
-   * //* Only Contract owner can make this call
+   * //* This function is used to replace various bond minters
+     //! Only Contract owner can make this call
    * replaceMinterParamList
    * @description dd
    * @param {Array<{ bondId: bigInt, newMinter: string }>} replaceMinterParamList
@@ -167,8 +167,8 @@ class TBClient {
   }
 
   /**
-    // TODO: This function is used to remove a minter from a bond
-   * //* Only Contract owner can make this call
+   * //* This function is used to remove a minter from a bond
+    //! Only Contract owner can make this call
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
@@ -188,6 +188,8 @@ class TBClient {
   }
 
   /**
+   * //* This function is used to pause a bond
+     //! Only Contract owner can make this call
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
@@ -207,6 +209,8 @@ class TBClient {
   }
 
   /**
+   * //* This function is used to resume a paused bond
+     //! Only Contract owner can make this call
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
@@ -226,6 +230,8 @@ class TBClient {
   }
 
   /**
+   * //* This function is used to enable bond inter-transfer amongst users
+     //! Only Contract owner can make this call
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
@@ -245,6 +251,8 @@ class TBClient {
   }
 
   /**
+   * //* This function is used to disable bond inter-transfer amongst users
+     //! Only Contract owner can make this call
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
@@ -264,6 +272,8 @@ class TBClient {
   }
 
   /**
+   * //* This function is used by users to inter-transfer bonds among themselves
+     //! Anyone with bond tokens can make this call
    * transferParam
    * @param {bigInt} bondId - The tokenized bond id
    * @param {number} amount - The amount transferred
