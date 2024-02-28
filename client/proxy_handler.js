@@ -24,7 +24,6 @@ class ProxyContractHandler {
     );
     await transaction.wait();
 
-    console.log("Upgrade successful");
     return transaction?.hash;
   }
 
@@ -38,7 +37,6 @@ class ProxyContractHandler {
     }
 
     await result.wait();
-    console.log(`${functionName} Result:`, result);
 
     return result;
   }

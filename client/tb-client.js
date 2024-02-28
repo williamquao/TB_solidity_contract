@@ -7,6 +7,8 @@ class TBClient {
   }
 
   /**
+   // TODO: This is used to create new bonds
+   * //* Only contract owner can make this call
    * bondParam
    * @param {number} initialSupply - The total supply of the bond
    * @param {timestamp} maturityDate - The bond maturity date
@@ -14,6 +16,7 @@ class TBClient {
    * @param {string} name - The minter of the bond
    * @returns {string, string} -The operation hash and bondId
    */
+
   async createBond(bondParam) {
     try {
       const { initialSupply, maturityDate, name, minter } = bondParam;
@@ -47,6 +50,8 @@ class TBClient {
   }
 
   /**
+    // TODO: This is used by minter to send bond tokens to user address
+   * //* Only minters can make this call
    * depositParam
    * @param {bigInt} bondId - The tokenized bond id
    * @param {number} amount - The amount to deposit to user
@@ -70,6 +75,8 @@ class TBClient {
   }
 
   /**
+    // TODO: This is used by minter to send bond tokens to various user addresses
+   * //* Only minters can make this call
    * depositParamList
    * @param {Array<{ bondId: bigInt, amount: number, receiver: string }>} depositParamList
    * @returns {string} - The operation hash
@@ -91,6 +98,8 @@ class TBClient {
   }
 
   /**
+    // TODO: This is used by users to
+   * //* Anyone can make this call
    * withdrawParam
    * @param {bigInt} bondId - The tokenized bond id
    * @param {number} amount - The amount to deposit to user
@@ -112,6 +121,8 @@ class TBClient {
   }
 
   /**
+   // TODO: This is to change a bond minter
+   * //* Only Contract owner can make this call
    * minterParam
    * @param {bigInt} bondId - The tokenized bond id
    * @param {string} newMinter - The new tokenized bond minter
@@ -133,7 +144,9 @@ class TBClient {
   }
 
   /**
-   * minterParam
+    // TODO: This is to change a bond minter
+   * //* Only Contract owner can make this call
+   * replaceMinterParamList
    * @description dd
    * @param {Array<{ bondId: bigInt, newMinter: string }>} replaceMinterParamList
    * @returns {string} - The operation hash

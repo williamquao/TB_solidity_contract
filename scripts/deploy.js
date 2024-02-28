@@ -3,7 +3,6 @@ require("dotenv").config();
 const hre = require("hardhat");
 
 async function main() {
-  const url = process.env.SEPOLIA_URL;
   const privateKey = process.env.PRIVATE_KEY;
   const provider = new ethers.AlchemyProvider(
     process.env.TESTNET,
