@@ -51,7 +51,7 @@ class TBClient {
 
   /**
    * //* This function is used by minter to send bond tokens to user address
-     //! Only minters can make this call
+     //! Only bond minters can make this call
    * depositParam
    * @param {bigInt} bondId - The tokenized bond id
    * @param {number} amount - The amount to deposit to user
@@ -76,7 +76,7 @@ class TBClient {
 
   /**
    * //* This function is used used by minter to send bond tokens to various user addresses
-     //! Only minters can make this call
+     //! Only bond minters can make this call
    * depositParamList
    * @param {Array<{ bondId: bigInt, amount: number, receiver: string }>} depositParamList
    * @returns {string} - The operation hash
@@ -98,7 +98,7 @@ class TBClient {
   }
 
   /**
-   * //* This function is used used by users to make a withdraw
+   * //* This function is used by users to make a withdraw
    //!  Anyone with bond tokens can make this call
    * withdrawParam
    * @param {bigInt} bondId - The tokenized bond id

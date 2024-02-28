@@ -18,6 +18,7 @@ class ProxyContractHandler {
     );
   }
 
+  //* This function is used upgrade TB contract implementation
   async upgradeImplementation(newImplementationAddress) {
     const transaction = await this.proxyContract.upgradeImpl(
       newImplementationAddress
@@ -27,6 +28,7 @@ class ProxyContractHandler {
     return transaction?.hash;
   }
 
+  //* This function is used to make TB_implementation contract function calls through proxy contract
   async callImplementationFunction(functionName, params) {
     let result;
 
