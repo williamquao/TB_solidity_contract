@@ -50,7 +50,7 @@ class TBClient {
   }
 
   /**
-    // TODO: This is used by minter to send bond tokens to user address
+    // TODO: This function is used by minter to send bond tokens to user address
    * //* Only minters can make this call
    * depositParam
    * @param {bigInt} bondId - The tokenized bond id
@@ -75,7 +75,7 @@ class TBClient {
   }
 
   /**
-    // TODO: This is used by minter to send bond tokens to various user addresses
+    // TODO: This function is used used by minter to send bond tokens to various user addresses
    * //* Only minters can make this call
    * depositParamList
    * @param {Array<{ bondId: bigInt, amount: number, receiver: string }>} depositParamList
@@ -98,7 +98,7 @@ class TBClient {
   }
 
   /**
-    // TODO: This is used by users to
+    // TODO: This function is used used by users to make a withdraw
    * //* Anyone can make this call
    * withdrawParam
    * @param {bigInt} bondId - The tokenized bond id
@@ -121,7 +121,7 @@ class TBClient {
   }
 
   /**
-   // TODO: This is to change a bond minter
+   // TODO: This function is used to replace a bond minter
    * //* Only Contract owner can make this call
    * minterParam
    * @param {bigInt} bondId - The tokenized bond id
@@ -144,7 +144,7 @@ class TBClient {
   }
 
   /**
-    // TODO: This is to change a bond minter
+    // TODO: This function is used to replace various bond minters
    * //* Only Contract owner can make this call
    * replaceMinterParamList
    * @description dd
@@ -167,6 +167,8 @@ class TBClient {
   }
 
   /**
+    // TODO: This function is used to remove a minter from a bond
+   * //* Only Contract owner can make this call
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
