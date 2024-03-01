@@ -19,6 +19,7 @@ class ProxyContractHandler {
   }
 
   //* This function is used upgrade TB contract implementation
+  //! Only contract owner can make this call
   async upgradeImplementation(newImplementationAddress) {
     const transaction = await this.proxyContract.upgradeImpl(
       newImplementationAddress
