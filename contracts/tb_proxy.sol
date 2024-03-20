@@ -8,7 +8,22 @@ contract TBProxy is Ownable(msg.sender) {
     address public tbImplementation;
 
     constructor(address _impl) {
+        require(
+            _isValidContractAddress(_impl),
+            "Invalid implementation contract address"
+        );
         tbImplementation = _impl;
+    }
+
+    //verify if provided address is a contract address
+    function _isValidContractAddress(
+        address _contractAddress
+    ) internal view returns (bool) {
+        uint size;
+        assembly {
+            size := extcodesize(_contractAddress)
+        }
+        return size > 0;
     }
 
     fallback() external {
@@ -36,7 +51,10 @@ contract TBProxy is Ownable(msg.sender) {
     }
 
     function upgradeImpl(address _impl) external onlyOwner {
-        require(_impl != address(0), "Invalid implementation address");
+        require(
+            _isValidContractAddress(_impl),
+            "Invalid implementation contract address"
+        );
         tbImplementation = _impl;
     }
 }
