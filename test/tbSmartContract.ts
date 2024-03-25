@@ -1,5 +1,5 @@
-import { expect } from "chai";
-import { ethers } from "hardhat";
+const { ethers } = require("hardhat");
+const { expect } = require("chai");
 
 describe("Tokenized bonds Test", () => {
   let tbContract;
