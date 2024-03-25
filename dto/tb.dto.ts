@@ -6,23 +6,23 @@ export class NewBond {
 }
 
 export class Deposit {
-  bondId: number;
+  bondId: BigInt;
   amount: number;
-  receiver: string;
+  user: string;
 }
 
 export class Withdraw {
-  bondId: number;
+  bondId: BigInt;
   amount: number;
 }
 
 export class Minter {
-  bondId: number;
+  bondId: BigInt;
   newMinter: string;
 }
 
 export class Transfer {
-  bondId: number;
+  bondId: BigInt;
   amount: number;
   receiver: string;
 }

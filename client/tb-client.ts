@@ -108,7 +108,7 @@ export class TBClient {
    * @param {number} amount - The amount to deposit to user
    * @returns {string} - The operation hash
    */
-  async withdraw(withdrawParam: Withdraw): Promise<string>  {
+  async withdraw(withdrawParam: Withdraw): Promise<string> {
     try {
       const functionName = "withdraw";
       const withdraw =
@@ -131,7 +131,7 @@ export class TBClient {
    * @param {string} newMinter - The new tokenized bond minter
    * @returns {string} - The operation hash
    */
-  async replaceMinter(minter: Minter): Promise<string>  {
+  async replaceMinter(minter: Minter): Promise<string> {
     try {
       const functionName = "updateBondMinter";
       const replaceMinter =
@@ -154,7 +154,7 @@ export class TBClient {
    * @param {Array<{ bondId: bigInt, newMinter: string }>} replaceMinterParamList
    * @returns {string} - The operation hash
    */
-  async replaceMintBulk(replaceMinters: Array<Minter>): Promise<string>  {
+  async replaceMintBulk(replaceMinters: Array<Minter>): Promise<string> {
     try {
       const functionName = "replaceMintBulk";
       const replaceMintBulk =
@@ -175,7 +175,7 @@ export class TBClient {
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async removeMint(bondId: number): Promise<string>  {
+  async removeMint(bondId: BigInt): Promise<string> {
     try {
       const functionName = "removeMint";
       const removeMint =
@@ -196,7 +196,7 @@ export class TBClient {
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async pauseBond(bondId: number): Promise<string>  {
+  async pauseBond(bondId: BigInt): Promise<string> {
     try {
       const functionName = "pauseBond";
       const pauseBond =
@@ -217,7 +217,7 @@ export class TBClient {
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async resumeBond(bondId: number): Promise<string>  {
+  async resumeBond(bondId: BigInt): Promise<string> {
     try {
       const functionName = "resumeBond";
       const resumeBond =
@@ -238,7 +238,7 @@ export class TBClient {
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async enableInterTransfer(bondId: number): Promise<string>  {
+  async enableInterTransfer(bondId: BigInt): Promise<string> {
     try {
       const functionName = "enableInterTransfer";
       const enableInterTransfer =
@@ -259,7 +259,7 @@ export class TBClient {
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async disableInterTransfer(bondId: number): Promise<string>  {
+  async disableInterTransfer(bondId: BigInt): Promise<string> {
     try {
       const functionName = "disableInterTransfer";
       const disableInterTransfer =
@@ -283,7 +283,7 @@ export class TBClient {
    * @param {string} receiver - The receiver address
    * @returns {string} - The operation hash
    */
-  async transferBondAmongUsers(transfer: Transfer): Promise<string>  {
+  async transferBondAmongUsers(transfer: Transfer): Promise<string> {
     try {
       const functionName = "transferBondAmongUsers";
       const transferBondAmongUsers =

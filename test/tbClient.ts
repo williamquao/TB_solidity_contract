@@ -1,12 +1,14 @@
-const { expect } = require("chai");
-const { TBClient } = require("../client/tb-client");
-require("dotenv").config();
+import { expect } from "chai";
+import { TBClient } from "../client/tb-client";
+import dotenv from "dotenv";
+import { Deposit, Transfer } from "../dto/tb.dto";
+dotenv.config();
 
 describe("Tokenized Bond Test", () => {
-  let bondId;
+  let bondId: BigInt;
 
   it("should create a new bond", async () => {
-    const privateKey = process.env.PRIVATE_KEY;
+    const privateKey = process.env.PRIVATE_KEY as string;
     const tbClient = new TBClient(privateKey);
     const bondParam = {
       initialSupply: 1000000,
@@ -21,13 +23,13 @@ describe("Tokenized Bond Test", () => {
   });
 
   it("should make a deposit", async () => {
-    const privateKey = process.env.MINTER_PRIVATE_KEY;
+    const privateKey = process.env.MINTER_PRIVATE_KEY as string;
     const tbClient = new TBClient(privateKey);
 
-    const depositParam = {
+    const depositParam: Deposit = {
       bondId,
       amount: 5000,
-      receiver: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      user: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     };
     const deposit = await tbClient.deposit(depositParam);
     expect(deposit).to.not.be.undefined;
@@ -35,9 +37,9 @@ describe("Tokenized Bond Test", () => {
   });
 
   it("should make a bulk deposit", async () => {
-    const privateKey = process.env.MINTER_PRIVATE_KEY;
+    const privateKey = process.env.MINTER_PRIVATE_KEY as string;
     const tbClient = new TBClient(privateKey);
-    const depositParamList = [
+    const depositParamList: Deposit[] = [
       {
         bondId,
         amount: 15000,
@@ -56,7 +58,7 @@ describe("Tokenized Bond Test", () => {
   });
 
   it("should make a withdraw", async () => {
-    const privateKey = process.env.USER_PRIVATE_KEY;
+    const privateKey = process.env.USER_PRIVATE_KEY as string;
     const tbClient = new TBClient(privateKey);
 
     const withdrawParam = {
@@ -70,7 +72,7 @@ describe("Tokenized Bond Test", () => {
   });
 
   it("should replace a minter", async () => {
-    const privateKey = process.env.PRIVATE_KEY;
+    const privateKey = process.env.PRIVATE_KEY as string;
     const tbClient = new TBClient(privateKey);
 
     const minterParam = {
@@ -84,7 +86,7 @@ describe("Tokenized Bond Test", () => {
   });
 
   it("should replace minters from various bond", async () => {
-    const privateKey = process.env.PRIVATE_KEY;
+    const privateKey = process.env.PRIVATE_KEY as string;
     const tbClient = new TBClient(privateKey);
 
     const replaceMinterParamList = [
@@ -102,7 +104,7 @@ describe("Tokenized Bond Test", () => {
   });
 
   it("should pause a T-bond", async () => {
-    const privateKey = process.env.PRIVATE_KEY;
+    const privateKey = process.env.PRIVATE_KEY as string;
     const tbClient = new TBClient(privateKey);
 
     const pauseBond = await tbClient.pauseBond(bondId);
@@ -112,7 +114,7 @@ describe("Tokenized Bond Test", () => {
   });
 
   it("should resume a T-bond", async () => {
-    const privateKey = process.env.PRIVATE_KEY;
+    const privateKey = process.env.PRIVATE_KEY as string;
     const tbClient = new TBClient(privateKey);
 
     const resumeBond = await tbClient.resumeBond(bondId);
@@ -122,7 +124,7 @@ describe("Tokenized Bond Test", () => {
   });
 
   it("should enable inter-transfer of a T-bond", async () => {
-    const privateKey = process.env.PRIVATE_KEY;
+    const privateKey = process.env.PRIVATE_KEY as string;
     const tbClient = new TBClient(privateKey);
 
     const enableInterTransfer = await tbClient.enableInterTransfer(bondId);
@@ -132,7 +134,7 @@ describe("Tokenized Bond Test", () => {
   });
 
   it("should disable inter-transfer of a T-bond", async () => {
-    const privateKey = process.env.PRIVATE_KEY;
+    const privateKey = process.env.PRIVATE_KEY as string;
     const tbClient = new TBClient(privateKey);
 
     const disableInterTransfer = await tbClient.disableInterTransfer(bondId);
@@ -142,13 +144,13 @@ describe("Tokenized Bond Test", () => {
   });
 
   it("should disable inter-transfer of a T-bond", async () => {
-    const privateKey = process.env.USER_PRIVATE_KEY;
+    const privateKey = process.env.USER_PRIVATE_KEY as string;
     const tbClient = new TBClient(privateKey);
 
-    const transferParam = {
+    const transferParam: Transfer = {
       bondId,
       amount: 1000,
-      newMinter: "0x25e11a136fA69E9AA4eE6A763bA643DA0D08E120",
+      receiver: "0x25e11a136fA69E9AA4eE6A763bA643DA0D08E120",
     };
     const transferBondAmongUsers = await tbClient.transferBondAmongUsers(
       transferParam
