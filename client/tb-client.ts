@@ -1,8 +1,12 @@
-const { ProxyContractHandler } = require("./proxy_handler");
-require("dotenv").config();
+import dotenv from "dotenv";
+import { ProxyContractHandler } from "./proxy_handler";
 
-class TBClient {
-  constructor(privateKey) {
+dotenv.config();
+
+export class TBClient {
+  private proxyContractHandler;
+
+  constructor(privateKey: string) {
     this.proxyContractHandler = new ProxyContractHandler(privateKey);
   }
 

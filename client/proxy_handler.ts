@@ -1,15 +1,20 @@
-const ethers = require("ethers");
-require("dotenv").config();
-const implementationAbi = require("../implementationAbi");
+import { ethers } from "ethers";
+import dotenv from "dotenv";
+import implementationAbi from "../implementationAbi.json";
 
-const proxyContractAddress = process.env.PROXY_CONTRACT;
+dotenv.config();
+
+const proxyContractAddress = process.env.PROXY_CONTRACT as string;
 const provider = new ethers.AlchemyProvider(
   process.env.TESTNET,
   process.env.APIKEY
 );
 
-class ProxyContractHandler {
-  constructor(privateKey) {
+export class ProxyContractHandler {
+  private wallet: ethers.Wallet;
+  private proxyContract: ethers.Contract;
+
+  constructor(privateKey: string) {
     this.wallet = new ethers.Wallet(privateKey, provider);
     this.proxyContract = new ethers.Contract(
       proxyContractAddress,
@@ -20,7 +25,9 @@ class ProxyContractHandler {
 
   //* This function is used upgrade TB contract implementation
   //! Only contract owner can make this call
-  async upgradeImplementation(newImplementationAddress) {
+  async upgradeImplementation(
+    newImplementationAddress: string
+  ): Promise<string> {
     const transaction = await this.proxyContract.upgradeImpl(
       newImplementationAddress
     );
@@ -30,7 +37,7 @@ class ProxyContractHandler {
   }
 
   //* This function is used to make TB_implementation contract function calls through proxy contract
-  async callImplementationFunction(functionName, params) {
+  async callImplementationFunction(functionName: string, params: any) {
     let result;
 
     if (typeof params === "object") {
@@ -45,4 +52,4 @@ class ProxyContractHandler {
   }
 }
 
-module.exports = { ProxyContractHandler };
+// module.exports = { ProxyContractHandler };
