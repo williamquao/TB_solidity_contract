@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { ProxyContractHandler } from "./proxy_handler";
+import { Deposit, Minter, NewBond, Transfer, Withdraw } from "../dto/tb.dto";
 
 dotenv.config();
 
@@ -21,28 +22,26 @@ export class TBClient {
    * @returns {string, string} -The operation hash and bondId
    */
 
-  async createBond(bondParam) {
+  async createBond(bond: NewBond): Promise<any> {
     try {
-      const { initialSupply, maturityDate, name, minter } = bondParam;
       const functionName = "createBond";
       const newBond =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          bondParam
+          bond
         );
 
       const hash = await newBond?.hash;
 
       const filter =
         this.proxyContractHandler.proxyContract.filters.BondCreated(
-          minter,
+          bond.minter,
           null,
-          maturityDate,
-          initialSupply
+          bond.maturityDate,
+          bond.initialSupply
         );
-      let events;
 
-      events = await this.proxyContractHandler.proxyContract.queryFilter(
+      const events = await this.proxyContractHandler.proxyContract.queryFilter(
         filter
       );
 
@@ -62,7 +61,7 @@ export class TBClient {
    * @param {string} receiver - The address of the user
    * @returns {string} - The operation hash
    */
-  async deposit(depositParam) {
+  async deposit(depositParam: Deposit): Promise<string> {
     try {
       const functionName = "deposit";
       const deposit =
@@ -71,7 +70,7 @@ export class TBClient {
           depositParam
         );
 
-      const hash = await deposit?.hash;
+      const hash: string = await deposit?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -85,16 +84,16 @@ export class TBClient {
    * @param {Array<{ bondId: bigInt, amount: number, receiver: string }>} depositParamList
    * @returns {string} - The operation hash
    */
-  async bulkDeposit(depositParamList) {
+  async bulkDeposit(deposits: Array<Deposit>): Promise<string> {
     try {
       const functionName = "depositBulk";
       const deposit =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          depositParamList
+          deposits
         );
 
-      const hash = await deposit?.hash;
+      const hash: string = await deposit?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -109,7 +108,7 @@ export class TBClient {
    * @param {number} amount - The amount to deposit to user
    * @returns {string} - The operation hash
    */
-  async withdraw(withdrawParam) {
+  async withdraw(withdrawParam: Withdraw): Promise<string>  {
     try {
       const functionName = "withdraw";
       const withdraw =
@@ -117,7 +116,7 @@ export class TBClient {
           functionName,
           withdrawParam
         );
-      const hash = await withdraw?.hash;
+      const hash: string = await withdraw?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -132,13 +131,13 @@ export class TBClient {
    * @param {string} newMinter - The new tokenized bond minter
    * @returns {string} - The operation hash
    */
-  async replaceMinter(minterParam) {
+  async replaceMinter(minter: Minter): Promise<string>  {
     try {
       const functionName = "updateBondMinter";
       const replaceMinter =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          minterParam
+          minter
         );
       const hash = await replaceMinter?.hash;
       return hash;
@@ -155,13 +154,13 @@ export class TBClient {
    * @param {Array<{ bondId: bigInt, newMinter: string }>} replaceMinterParamList
    * @returns {string} - The operation hash
    */
-  async replaceMintBulk(replaceMinterParamList) {
+  async replaceMintBulk(replaceMinters: Array<Minter>): Promise<string>  {
     try {
       const functionName = "replaceMintBulk";
       const replaceMintBulk =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          replaceMinterParamList
+          replaceMinters
         );
       const hash = await replaceMintBulk?.hash;
       return hash;
@@ -176,7 +175,7 @@ export class TBClient {
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async removeMint(bondId) {
+  async removeMint(bondId: number): Promise<string>  {
     try {
       const functionName = "removeMint";
       const removeMint =
@@ -184,7 +183,7 @@ export class TBClient {
           functionName,
           bondId
         );
-      const hash = await removeMint?.hash;
+      const hash: string = await removeMint?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -197,7 +196,7 @@ export class TBClient {
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async pauseBond(bondId) {
+  async pauseBond(bondId: number): Promise<string>  {
     try {
       const functionName = "pauseBond";
       const pauseBond =
@@ -205,7 +204,7 @@ export class TBClient {
           functionName,
           bondId
         );
-      const hash = await pauseBond?.hash;
+      const hash: string = await pauseBond?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -218,7 +217,7 @@ export class TBClient {
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async resumeBond(bondId) {
+  async resumeBond(bondId: number): Promise<string>  {
     try {
       const functionName = "resumeBond";
       const resumeBond =
@@ -226,7 +225,7 @@ export class TBClient {
           functionName,
           bondId
         );
-      const hash = await resumeBond?.hash;
+      const hash: string = await resumeBond?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -239,7 +238,7 @@ export class TBClient {
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async enableInterTransfer(bondId) {
+  async enableInterTransfer(bondId: number): Promise<string>  {
     try {
       const functionName = "enableInterTransfer";
       const enableInterTransfer =
@@ -247,7 +246,7 @@ export class TBClient {
           functionName,
           bondId
         );
-      const hash = await enableInterTransfer?.hash;
+      const hash: string = await enableInterTransfer?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -260,7 +259,7 @@ export class TBClient {
    * @param {bigInt} bondId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async disableInterTransfer(bondId) {
+  async disableInterTransfer(bondId: number): Promise<string>  {
     try {
       const functionName = "disableInterTransfer";
       const disableInterTransfer =
@@ -268,7 +267,7 @@ export class TBClient {
           functionName,
           bondId
         );
-      const hash = await disableInterTransfer?.hash;
+      const hash: string = await disableInterTransfer?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -284,15 +283,15 @@ export class TBClient {
    * @param {string} receiver - The receiver address
    * @returns {string} - The operation hash
    */
-  async transferBondAmongUsers(transferParam) {
+  async transferBondAmongUsers(transfer: Transfer): Promise<string>  {
     try {
       const functionName = "transferBondAmongUsers";
       const transferBondAmongUsers =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          transferParam
+          transfer
         );
-      const hash = await transferBondAmongUsers?.hash;
+      const hash: string = await transferBondAmongUsers?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
