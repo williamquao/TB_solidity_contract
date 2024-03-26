@@ -7,7 +7,7 @@ describe("Tokenized bonds Test", () => {
   let tbImplementationContract;
   let signers;
   const bondId = BigInt(
-    "94728191037934580968850183277756393853664353133092476056182456800137316456183"
+    "12459123034594101601133848791414057143407166679711044500175648910976503210763"
   );
 
   const invalidAddress = "0x0000000000000000000000000000000000000000";
@@ -126,7 +126,7 @@ describe("Tokenized bonds Test", () => {
 
     it("should successfully create Bond", async () => {
       const bondParam = {
-        initialSupply: 100000,
+        initialSupply: 100000000,
         maturityDate: 1740058156,
         name: "CMR BOND",
         minter: signers[1].getAddress(),
@@ -154,7 +154,7 @@ describe("Tokenized bonds Test", () => {
 
     it("should fail if trying to recreate an existing bond", async () => {
       const bondParam = {
-        initialSupply: 100000,
+        initialSupply: 100000000,
         maturityDate: 1740058156,
         name: "CMR BOND",
         minter: signers[3].getAddress(),
@@ -206,7 +206,7 @@ describe("Tokenized bonds Test", () => {
     it("should fail if sending more than account balance", async () => {
       const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
       await expect(
-        tbContract.connect(signers[1]).deposit(bondId, 50000000, userAddress)
+        tbContract.connect(signers[1]).deposit(bondId, 200000000, userAddress)
       ).to.rejectedWith("Insufficient balance");
     });
 
@@ -221,11 +221,11 @@ describe("Tokenized bonds Test", () => {
 
     it("should successfully do a bulk deposit to various users", async () => {
       const user1 = await signers[5].getAddress();
-      const user2 = await signers[6].getAddress();
+      const user2 = await signers[10].getAddress();
 
       const depositsTuples = [
-        { bondId, amount: 5000, user: user1 },
-        { bondId, amount: 2000, user: user2 },
+        { bondId, amount: 1000, user: user1 },
+        { bondId, amount: 1000, user: user2 },
       ];
 
       const deposit = await tbContract
