@@ -1,11 +1,11 @@
-import { ethers } from "ethers";
-import dotenv from "dotenv";
-import hre from "hardhat";
+const ethers = require("ethers");
+const dotenv = require("dotenv");
+const hre = require("hardhat");
 
 dotenv.config();
 
 async function main() {
-  const privateKey = process.env.PRIVATE_KEY as string;
+  const privateKey = process.env.PRIVATE_KEY;
   const provider = new ethers.AlchemyProvider(
     process.env.TESTNET,
     process.env.APIKEY
