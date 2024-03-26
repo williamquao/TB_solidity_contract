@@ -1,5 +1,5 @@
 {
-  "name": "hardhat-project",
+  "name": "Tokenized Bond-project",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
     "hardhat": "^2.20.1"

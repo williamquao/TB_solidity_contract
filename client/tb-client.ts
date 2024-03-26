@@ -298,5 +298,3 @@ export class TBClient {
     }
   }
 }
-
-module.exports = { TBClient };
