@@ -267,7 +267,7 @@ describe("Tokenized bonds Test", () => {
     it("should successfully withdraw", async () => {
       const withdraw = await tbContract
         .connect(signers[5])
-        .withdraw(bondId, 6000);
+        .withdraw(bondId, 5000);
       const retrieveWithdraw = await tbContract
         .connect(signers[5])
         .BondDepositWithdraws(bondId, 0);
