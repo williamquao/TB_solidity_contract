@@ -21,7 +21,11 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
         Status indexed status
     );
     event BondMinterReplacement(uint indexed bondId, address indexed newMinter);
-    event MintRemoval(uint indexed bondId, address indexed newMinter, uint amount);
+    event MintRemoval(
+        uint indexed bondId,
+        address indexed newMinter,
+        uint amount
+    );
     event IsBondPaused(uint bondId, bool isPaused);
     event IsBondInterTransferAllowed(uint bondId, bool isTransferable);
     event BondTransferedAmongUsers(
@@ -139,13 +143,20 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
         );
         bool success = transfer(_user, _bondId, _amount);
         require(success, "Transfer failed");
-        emit TransferWithdrawal(msg.sender, _user, _bondId, _amount, Status.DEPOSIT);
+        emit TransferWithdrawal(
+            msg.sender,
+            _user,
+            _bondId,
+            _amount,
+            Status.DEPOSIT
+        );
     }
 
     // minter can do a bulk deposit to max 20 users
     function depositBulk(
         DepositWithdrawalParams[] calldata deposits
     ) external override {
+        require(deposits.length <= 15, "Deposit list should not be above 15");
         for (uint256 i = 0; i < deposits.length; i++) {
             uint256 bondId = deposits[i].bondId;
             uint256 amount = deposits[i].amount;
@@ -227,6 +238,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
     function replaceMintBulk(
         ReplaceMintParams[] calldata mints
     ) external override onlyOwner {
+        require(mints.length <= 15, "Mint list should not be above 15");
         for (uint256 i = 0; i < mints.length; i++) {
             uint bondId = mints[i].bondId;
             address newMinter = mints[i].newMinter;
