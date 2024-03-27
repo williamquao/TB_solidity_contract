@@ -76,7 +76,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
     }
 
     modifier bondExist(uint _bondId) {
-        require(Bonds[_bondId].minter != address(0), "Bond doesn't exist");
+        require(Bonds[_bondId].minter != address(0), "Bond does not exist");
         _;
     }
 
