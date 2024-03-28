@@ -85,6 +85,11 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
         _;
     }
 
+    modifier isInputListValid(uint _length) {
+        require(_length <= 15, "Deposit list should not be above 15");
+        _;
+    }
+
     //Create bond and generate its respective token and mint bond balance to miner
     function createBond(
         uint _initialSupply,
@@ -155,8 +160,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
     // minter can do a bulk deposit to max 20 users
     function depositBulk(
         DepositWithdrawalParams[] calldata deposits
-    ) external override {
-        require(deposits.length <= 15, "Deposit list should not be above 15");
+    ) external override isInputListValid(deposits.length) {
         for (uint256 i = 0; i < deposits.length; i++) {
             uint256 bondId = deposits[i].bondId;
             uint256 amount = deposits[i].amount;
@@ -237,7 +241,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909, ITB_impl {
     //replace minters in bulk with respect to associated bond
     function replaceMintBulk(
         ReplaceMintParams[] calldata mints
-    ) external override onlyOwner {
+    ) external override onlyOwner isInputListValid(mints.length) {
         require(mints.length <= 15, "Mint list should not be above 15");
         for (uint256 i = 0; i < mints.length; i++) {
             uint bondId = mints[i].bondId;

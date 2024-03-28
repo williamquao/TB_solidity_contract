@@ -243,6 +243,7 @@ describe("Tokenized bonds Test", () => {
         { bondId, amount: 1000, user: user1 },
         { bondId, amount: 1000, user: user2 },
       ];
+
       await expect(
         tbContract.connect(signers[1]).depositBulk(depositsTuples)
       ).to.rejectedWith("Deposit list should not be above 15");
@@ -250,6 +251,7 @@ describe("Tokenized bonds Test", () => {
 
     it("should successfully do a bulk deposit to various users", async () => {
       const user1 = await signers[5].getAddress();
+
       const user2 = await signers[10].getAddress();
 
       const depositsTuples = [
