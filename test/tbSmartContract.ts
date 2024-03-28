@@ -177,7 +177,7 @@ describe("Tokenized bonds Test", () => {
       const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
       await expect(
         tbContract.deposit(nonExistentBondId, 5000, userAddress)
-      ).to.rejectedWith("Bond doesn't exist");
+      ).to.rejectedWith("Bond does not exist");
     });
 
     it("should fail if sender is not minter", async () => {
@@ -219,6 +219,35 @@ describe("Tokenized bonds Test", () => {
       expect(deposit.hash).to.be.a("string");
     });
 
+    it("should fail if sending a bulk deposit beyond 15", async () => {
+      const user1 = await signers[5].getAddress();
+      const user2 = await signers[10].getAddress();
+
+      const depositsTuples = [
+        { bondId, amount: 1000, user: user1 },
+        { bondId, amount: 1000, user: user2 },
+        { bondId, amount: 1000, user: user1 },
+        { bondId, amount: 1000, user: user2 },
+        { bondId, amount: 1000, user: user1 },
+        { bondId, amount: 1000, user: user2 },
+        { bondId, amount: 1000, user: user1 },
+        { bondId, amount: 1000, user: user2 },
+        { bondId, amount: 1000, user: user1 },
+        { bondId, amount: 1000, user: user2 },
+        { bondId, amount: 1000, user: user1 },
+        { bondId, amount: 1000, user: user2 },
+        { bondId, amount: 1000, user: user1 },
+        { bondId, amount: 1000, user: user2 },
+        { bondId, amount: 1000, user: user1 },
+        { bondId, amount: 1000, user: user2 },
+        { bondId, amount: 1000, user: user1 },
+        { bondId, amount: 1000, user: user2 },
+      ];
+      await expect(
+        tbContract.connect(signers[1]).depositBulk(depositsTuples)
+      ).to.rejectedWith("Deposit list should not be above 15");
+    });
+
     it("should successfully do a bulk deposit to various users", async () => {
       const user1 = await signers[5].getAddress();
       const user2 = await signers[10].getAddress();
@@ -241,7 +270,7 @@ describe("Tokenized bonds Test", () => {
       const nonExistentBondId = 123;
       await expect(
         tbContract.connect(signers[5]).withdraw(nonExistentBondId, 5000)
-      ).to.rejectedWith("Bond doesn't exist");
+      ).to.rejectedWith("Bond does not exist");
     });
 
     it("should fail if bond is paused", async () => {
@@ -287,7 +316,7 @@ describe("Tokenized bonds Test", () => {
           nonExistentBondId,
           await signers[2].getAddress()
         )
-      ).to.rejectedWith("Bond doesn't exist");
+      ).to.rejectedWith("Bond does not exist");
     });
 
     it("should fail if bond is paused", async () => {
@@ -363,7 +392,7 @@ describe("Tokenized bonds Test", () => {
       const nonExistentBondId = 123;
 
       await expect(tbContract.pauseBond(nonExistentBondId)).to.rejectedWith(
-        "Bond doesn't exist"
+        "Bond does not exist"
       );
     });
 
@@ -394,7 +423,7 @@ describe("Tokenized bonds Test", () => {
       const nonExistentBondId = 123;
 
       await expect(tbContract.resumeBond(nonExistentBondId)).to.rejectedWith(
-        "Bond doesn't exist"
+        "Bond does not exist"
       );
     });
 
@@ -426,7 +455,7 @@ describe("Tokenized bonds Test", () => {
 
       await expect(
         tbContract.enableInterTransfer(nonExistentBondId)
-      ).to.rejectedWith("Bond doesn't exist");
+      ).to.rejectedWith("Bond does not exist");
     });
 
     it("should fail if bond is paused", async () => {
@@ -465,7 +494,7 @@ describe("Tokenized bonds Test", () => {
 
       await expect(
         tbContract.disableInterTransfer(nonExistentBondId)
-      ).to.rejectedWith("Bond doesn't exist");
+      ).to.rejectedWith("Bond does not exist");
     });
 
     it("should fail if bond is paused", async () => {
@@ -503,7 +532,7 @@ describe("Tokenized bonds Test", () => {
           100,
           await signers[7].getAddress()
         )
-      ).to.rejectedWith("Bond doesn't exist");
+      ).to.rejectedWith("Bond does not exist");
     });
 
     it("should fail if bond is paused", async () => {
