@@ -291,7 +291,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
             "New minter exist"
         );
         // replace old minter with new minter in all minted tokens
-        for (uint i = 1; i < minterTokensMetadata[_OldMinter].length; i++) {
+        for (uint i = 0; i < minterTokensMetadata[_OldMinter].length; i++) {
             uint tokenId = minterTokensMetadata[_OldMinter][i].tokenId;
             uint amount = minterTokensMetadata[_OldMinter][i].tokensMinted;
             TokenMetadata[tokenId].minter = _newMinter;
