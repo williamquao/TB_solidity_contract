@@ -5,7 +5,7 @@ import "./ERC-6909.sol";
 // import "./tb_interface.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract TBImpl is Ownable, ERC6909 {
+contract TBImpl is Ownable(msg.sender), ERC6909 {
     event minted(
         address indexed bondMinter,
         uint32 interestRate,
@@ -606,11 +606,19 @@ contract TBImpl is Ownable, ERC6909 {
                 sender == TokenMetadata[tokenId].minter &&
                 receiver != TokenMetadata[tokenId].minter
             ) {
+                require(
+                    _isTokenMinter(tokenId, msg.sender),
+                    "Caller must be token minter"
+                );
                 _deposit(tokenId, amount, sender, receiver);
             } else if (
                 receiver == TokenMetadata[tokenId].minter &&
                 sender != TokenMetadata[tokenId].minter
             ) {
+                require(
+                    _isTokenMinter(tokenId, receiver),
+                    "Receiver must be token minter"
+                );
                 _withdraw(tokenId, amount, sender, receiver);
             } else {
                 _interTransfer(tokenId, amount, sender, receiver);
