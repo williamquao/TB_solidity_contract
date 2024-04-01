@@ -1,26 +1,19 @@
-import { ethers } from "ethers";
+import { ethers } from "hardhat";
 import dotenv from "dotenv";
 import implementationAbi from "../implementationAbi.json";
 
 dotenv.config();
 
 const proxyContractAddress = process.env.PROXY_CONTRACT as string;
-const provider = new ethers.AlchemyProvider(
-  process.env.TESTNET,
-  process.env.APIKEY
-);
 
 export class ProxyContractHandler {
-  private wallet: ethers.Wallet;
-  private proxyContract: ethers.Contract;
+  private proxyContract;
 
-  constructor(privateKey: string) {
-    this.wallet = new ethers.Wallet(privateKey, provider);
-    this.proxyContract = new ethers.Contract(
-      proxyContractAddress,
-      implementationAbi,
-      this.wallet
-    );
+  constructor() {
+    (async () => {
+      const MyContract = await ethers.getContractFactory("TBImpl");
+      this.proxyContract = MyContract.attach(proxyContractAddress);
+    })();
   }
 
   //* This function is used upgrade TB contract implementation
@@ -51,5 +44,3 @@ export class ProxyContractHandler {
     return result;
   }
 }
-
-// module.exports = { ProxyContractHandler };
