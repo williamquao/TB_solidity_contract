@@ -108,7 +108,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     }
 
     modifier isInputListValid(uint _length) {
-        require(_length <= 15, "Deposit list should not be above 15");
+        require(_length <= 15, "List should not be above 15");
         _;
     }
 
@@ -312,7 +312,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         require(_minter != address(0), "Address is invalid");
         //cannot remove minter if tight to a token
         require(
-            minterTokensMetadata[_minter].length == 1,
+            minterTokensMetadata[_minter].length >= 1,
             "Cannot remove minter"
         );
         delete minterTokensMetadata[_minter];
@@ -342,17 +342,20 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     // Operators
     //----------------------------------------------------------------------------
 
-    // handle both additions and removals of operators
+    // handle both additions and removals of operators for specific tokens
     function updateOperators(
         OperatorParam[] memory upl
-    ) public notPausedContract {
+    ) public notPausedContract isInputListValid(upl.length){
         for (uint i = 0; i < upl.length; i++) {
             OperatorParam memory param = upl[i];
+            //if action is ADD, check if owner is caller and add operator
             if (param.action == OperatorAction.Add) {
                 require(param.owner == msg.sender, "Caller not owner");
                 operator[param.owner][param.tokenId] = param.operator;
-            } else {
-                // Combined removal check (avoid unnecessary require)
+            } 
+            //if action is REMOVE, check if owner is caller and operator exist, then delete operator
+            else {
+
                 if (
                     param.owner == msg.sender &&
                     operator[param.owner][param.tokenId] == param.operator
@@ -366,24 +369,26 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     // update operators for all tokens of a caller
     function updateOperatorsForAll(
         address[] memory upl
-    ) public notPausedContract {
-        require(upl.length < 15, "upl should be less than 15");
+    ) public notPausedContract isInputListValid(upl.length){
         address sender = msg.sender;
         address[] storage operators = operatorForAll[sender];
 
         for (uint256 i = 0; i < upl.length; i++) {
             address operatorx = upl[i];
             uint256 idx;
-
+            // break if any new operator is already an operator for the caller
             for (idx = 0; idx < operators.length; idx++) {
-                if (operators[idx] == operatorx) break;
+                if (operators[idx] == operatorx) {
+                    break;
+                }
             }
-
+            //if prev operator does't exist in new operator list, remove it else add it to the list
             if (idx != operators.length) {
-                // Remove using splice
+                // if new operator already exist in operators, remove it from operator list
                 operators[idx] = operators[operators.length - 1];
                 operators.pop();
             } else {
+                // if new operator doesn't exist in operators, add it to operator list
                 operators.push(operatorx);
             }
         }
@@ -481,14 +486,18 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
 
     function burn(uint _tokenId, uint _amount) external notPausedContract {
         require(_isTokenMinter(_tokenId, msg.sender), "Not token minter");
+        require(balance > _amount, "Amount must be less than balance");
         require(_amount > 0, "Amount cannot be less than 0");
         uint balance = balanceOf[msg.sender][_tokenId];
         if (balance > _amount) {
             _burn(msg.sender, _tokenId, _amount);
-        } else if (balance == _amount) {
-            _burn(msg.sender, _tokenId, _amount);
-            delete TokenMetadata[_tokenId];
-        } else {
+            for(uint i=0; i < minterTokensMetadata[msg.sender].length; i++){
+                if(minterTokensMetadata[msg.sender][i].tokenId === _tokenId){
+                    minterTokensMetadata[msg.sender][i].amount -= _amount;
+                }
+            }
+        } 
+        else {
             revert("Insufficient balance");
         }
     }
@@ -592,6 +601,10 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
                 _isInterTransferAfterExpiryAllowed(tokenId, receiver),
                 "Inter transfer after expiry not allowed"
             );
+            require(
+                sender != receiver,
+                "Sender must be different from receiver"
+            );
 
             require(
                 amount >= unitPrice && amount % unitPrice == 0,
@@ -603,8 +616,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
             );
             //if sender is token minter, it's a deposit else withdraw
             if (
-                sender == TokenMetadata[tokenId].minter &&
-                receiver != TokenMetadata[tokenId].minter
+                sender == TokenMetadata[tokenId].minter
             ) {
                 require(
                     _isTokenMinter(tokenId, msg.sender),
@@ -612,8 +624,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
                 );
                 _deposit(tokenId, amount, sender, receiver);
             } else if (
-                receiver == TokenMetadata[tokenId].minter &&
-                sender != TokenMetadata[tokenId].minter
+                receiver == TokenMetadata[tokenId].minter 
             ) {
                 require(
                     _isTokenMinter(tokenId, receiver),

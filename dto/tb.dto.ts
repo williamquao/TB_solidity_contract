@@ -1,14 +1,16 @@
-export class NewBond {
-  initialSupply: number;
-  maturityDate: number;
-  name: string;
-  minter: string;
+export class MintBond {
+  interestRate: number;
+  expirationDate: number;
+  tokenId: number;
+  amount: number;
+  custodial: boolean;
 }
 
-export class Deposit {
-  bondId: BigInt;
+export class Transfer {
+  tokenId: number;
   amount: number;
-  user: string;
+  sender: string;
+  receiver: string;
 }
 
 export class Withdraw {
@@ -17,12 +19,12 @@ export class Withdraw {
 }
 
 export class Minter {
-  bondId: BigInt;
+  oldMinter: string;
   newMinter: string;
 }
 
-export class Transfer {
-  bondId: BigInt;
-  amount: number;
-  receiver: string;
-}
+// export class Transfer {
+//   bondId: BigInt;
+//   amount: number;
+//   receiver: string;
+// }

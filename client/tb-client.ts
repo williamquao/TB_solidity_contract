@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { ProxyContractHandler } from "./proxy_handler";
-import { Deposit, Minter, NewBond, Transfer, Withdraw } from "../dto/tb.dto";
+import { MintBond, Minter, Transfer, Withdraw } from "../dto/tb.dto";
 
 dotenv.config();
 
@@ -13,110 +13,47 @@ export class TBClient {
 
   /**
    * //* This function is used to create new bonds
-     //! Only contract owner can make this call
+     //! Only contract minters can make this call
    * bondParam
-   * @param {number} initialSupply - The total supply of the bond
-   * @param {timestamp} maturityDate - The bond maturity date
-   * @param {string} name - The name of the bond
-   * @param {string} name - The minter of the bond
-   * @returns {string, string} -The operation hash and bondId
+   * @param {number} interestRate - The interest rate of the bond
+   * @param {number} tokenId - The token id of the bond
+   * @param {timestamp} expirationDate - The bond maturity date
+   * @param {number} amount - The stock of the bond
+   * @returns {string} -The operation hash
    */
 
-  async createBond(bond: NewBond): Promise<any> {
+  async mintBond(bondParam: MintBond): Promise<string> {
     try {
-      const functionName = "createBond";
+      const functionName = "mint";
       const newBond =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          bond
+          bondParam
         );
 
       const hash = await newBond?.hash;
 
-      const filter =
-        this.proxyContractHandler.proxyContract.filters.BondCreated(
-          bond.minter,
-          null,
-          bond.maturityDate,
-          bond.initialSupply
-        );
-
-      const events = await this.proxyContractHandler.proxyContract.queryFilter(
-        filter
-      );
-
-      const bondId = events[0]?.args[4].toString();
-      return { hash, bondId };
+      return hash;
     } catch (e) {
       return "Operation failed: " + e;
     }
   }
 
   /**
-   * //* This function is used by minter to send bond tokens to user address
-     //! Only bond minters can make this call
-   * depositParam
-   * @param {bigInt} bondId - The tokenized bond id
-   * @param {number} amount - The amount to deposit to user
-   * @param {string} receiver - The address of the user
+   * //* This function is used to transfer tokens
+   * @param {Array<Transfer>} depositParamList
    * @returns {string} - The operation hash
    */
-  async deposit(depositParam: Deposit): Promise<string> {
+  async transfer(transfers: Array<Transfer>): Promise<string> {
     try {
-      const functionName = "deposit";
+      const functionName = "makeTransfer";
       const deposit =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          depositParam
+          transfers
         );
 
       const hash: string = await deposit?.hash;
-      return hash;
-    } catch (error) {
-      return "Operation failed: " + error;
-    }
-  }
-
-  /**
-   * //* This function is used used by minter to send bond tokens to various user addresses
-     //! Only bond minters can make this call
-   * depositParamList
-   * @param {Array<{ bondId: bigInt, amount: number, receiver: string }>} depositParamList
-   * @returns {string} - The operation hash
-   */
-  async bulkDeposit(deposits: Array<Deposit>): Promise<string> {
-    try {
-      const functionName = "depositBulk";
-      const deposit =
-        await this.proxyContractHandler.callImplementationFunction(
-          functionName,
-          deposits
-        );
-
-      const hash: string = await deposit?.hash;
-      return hash;
-    } catch (error) {
-      return "Operation failed: " + error;
-    }
-  }
-
-  /**
-   * //* This function is used by users to make a withdraw
-   //!  Anyone with bond tokens can make this call
-   * withdrawParam
-   * @param {bigInt} bondId - The tokenized bond id
-   * @param {number} amount - The amount to deposit to user
-   * @returns {string} - The operation hash
-   */
-  async withdraw(withdrawParam: Withdraw): Promise<string> {
-    try {
-      const functionName = "withdraw";
-      const withdraw =
-        await this.proxyContractHandler.callImplementationFunction(
-          functionName,
-          withdrawParam
-        );
-      const hash: string = await withdraw?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -126,14 +63,13 @@ export class TBClient {
   /**
    * //* This function is used to replace a bond minter
      //! Only Contract owner can make this call
-   * minterParam
-   * @param {bigInt} bondId - The tokenized bond id
+   * @param {string} OldMinter - The previous tokenized bond minter
    * @param {string} newMinter - The new tokenized bond minter
    * @returns {string} - The operation hash
    */
   async replaceMinter(minter: Minter): Promise<string> {
     try {
-      const functionName = "updateBondMinter";
+      const functionName = "replaceMinter";
       const replaceMinter =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
@@ -147,22 +83,20 @@ export class TBClient {
   }
 
   /**
-   * //* This function is used to replace various bond minters
+   * //* This function is used to add a minter
      //! Only Contract owner can make this call
-   * replaceMinterParamList
-   * @description dd
-   * @param {Array<{ bondId: bigInt, newMinter: string }>} replaceMinterParamList
+   * @param {string} Minter - New minter
    * @returns {string} - The operation hash
    */
-  async replaceMintBulk(replaceMinters: Array<Minter>): Promise<string> {
+  async addMinter(minter: string): Promise<string> {
     try {
-      const functionName = "replaceMintBulk";
-      const replaceMintBulk =
+      const functionName = "addMinter";
+      const replaceMinter =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          replaceMinters
+          minter
         );
-      const hash = await replaceMintBulk?.hash;
+      const hash = await replaceMinter?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -170,18 +104,18 @@ export class TBClient {
   }
 
   /**
-   * //* This function is used to remove a minter from a bond
+   * //* This function is used to remove a minter 
     //! Only Contract owner can make this call
-   * @param {bigInt} bondId - The tokenized bond id
+   * @param {string} Minter - New minter
    * @returns {string} - The operation hash
    */
-  async removeMint(bondId: BigInt): Promise<string> {
+  async removeMinter(minter: string): Promise<string> {
     try {
-      const functionName = "removeMint";
+      const functionName = "removeMinter";
       const removeMint =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          bondId
+          minter
         );
       const hash: string = await removeMint?.hash;
       return hash;
@@ -191,20 +125,17 @@ export class TBClient {
   }
 
   /**
-   * //* This function is used to pause a bond
-     //! Only Contract owner can make this call
-   * @param {bigInt} bondId - The tokenized bond id
+   * //* This function is used to pause contract
+    //! Only Contract owner can make this call
    * @returns {string} - The operation hash
    */
-  async pauseBond(bondId: BigInt): Promise<string> {
+  async pause(): Promise<string> {
     try {
-      const functionName = "pauseBond";
-      const pauseBond =
-        await this.proxyContractHandler.callImplementationFunction(
-          functionName,
-          bondId
-        );
-      const hash: string = await pauseBond?.hash;
+      const functionName = "pause";
+      const pause = await this.proxyContractHandler.callImplementationFunction(
+        functionName
+      );
+      const hash: string = await pause?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -212,20 +143,17 @@ export class TBClient {
   }
 
   /**
-   * //* This function is used to resume a paused bond
-     //! Only Contract owner can make this call
-   * @param {bigInt} bondId - The tokenized bond id
+   * //* This function is used to resume contract
+    //! Only Contract owner can make this call
    * @returns {string} - The operation hash
    */
-  async resumeBond(bondId: BigInt): Promise<string> {
+  async resume(): Promise<string> {
     try {
-      const functionName = "resumeBond";
-      const resumeBond =
-        await this.proxyContractHandler.callImplementationFunction(
-          functionName,
-          bondId
-        );
-      const hash: string = await resumeBond?.hash;
+      const functionName = "resume";
+      const resume = await this.proxyContractHandler.callImplementationFunction(
+        functionName
+      );
+      const hash: string = await resume?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -235,18 +163,18 @@ export class TBClient {
   /**
    * //* This function is used to enable bond inter-transfer amongst users
      //! Only Contract owner can make this call
-   * @param {bigInt} bondId - The tokenized bond id
+   * @param {number} tokenId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async enableInterTransfer(bondId: BigInt): Promise<string> {
+  async resumeInterTransfer(tokenId: number): Promise<string> {
     try {
-      const functionName = "enableInterTransfer";
-      const enableInterTransfer =
+      const functionName = "resumeInterTransfer";
+      const resumeInterTransfer =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          bondId
+          tokenId
         );
-      const hash: string = await enableInterTransfer?.hash;
+      const hash: string = await resumeInterTransfer?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -254,20 +182,41 @@ export class TBClient {
   }
 
   /**
-   * //* This function is used to disable bond inter-transfer amongst users
+     * //* This function is used to disable bond inter-transfer amongst users
+       //! Only Contract owner can make this call
+     * @param {number} tokenId - The tokenized bond id
+     * @returns {string} - The operation hash
+     */
+  async pauseInterTransfer(tokenId: number): Promise<string> {
+    try {
+      const functionName = "pauseInterTransfer";
+      const pauseInterTransfer =
+        await this.proxyContractHandler.callImplementationFunction(
+          functionName,
+          tokenId
+        );
+      const hash: string = await pauseInterTransfer?.hash;
+      return hash;
+    } catch (error) {
+      return "Operation failed: " + error;
+    }
+  }
+
+  /**
+   * //* This function is used to enable bond inter-transfer after expiry 
      //! Only Contract owner can make this call
-   * @param {bigInt} bondId - The tokenized bond id
+   * @param {number} tokenId - The tokenized bond id
    * @returns {string} - The operation hash
    */
-  async disableInterTransfer(bondId: BigInt): Promise<string> {
+  async resumeItrAfterExpiry(tokenId: number): Promise<string> {
     try {
-      const functionName = "disableInterTransfer";
-      const disableInterTransfer =
+      const functionName = "resumeItrAfterExpiry";
+      const resumeItrAfterExpiry =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          bondId
+          tokenId
         );
-      const hash: string = await disableInterTransfer?.hash;
+      const hash: string = await resumeItrAfterExpiry?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
@@ -275,23 +224,104 @@ export class TBClient {
   }
 
   /**
-   * //* This function is used by users to inter-transfer bonds among themselves
-     //! Anyone with bond tokens can make this call
-   * transferParam
-   * @param {bigInt} bondId - The tokenized bond id
-   * @param {number} amount - The amount transferred
-   * @param {string} receiver - The receiver address
-   * @returns {string} - The operation hash
-   */
-  async transferBondAmongUsers(transfer: Transfer): Promise<string> {
+ * //* This function is used to disable bond inter-transfer after expiry 
+   //! Only Contract owner can make this call
+  * @param {number} tokenId - The tokenized bond id
+  * @returns {string} - The operation hash
+  */
+  async pauseItrAfterExpiry(tokenId: number): Promise<string> {
     try {
-      const functionName = "transferBondAmongUsers";
-      const transferBondAmongUsers =
+      const functionName = "pauseItrAfterExpiry";
+      const pauseItrAfterExpiry =
         await this.proxyContractHandler.callImplementationFunction(
           functionName,
-          transfer
+          tokenId
         );
-      const hash: string = await transferBondAmongUsers?.hash;
+      const hash: string = await pauseItrAfterExpiry?.hash;
+      return hash;
+    } catch (error) {
+      return "Operation failed: " + error;
+    }
+  }
+
+  /**
+   * //* This function is used to set minter as operator
+     //! Only Contract owner can make this call
+   * @param {number} tokenId - The tokenized bond id
+   * @returns {string} - The operation hash
+   */
+  async setMinterAsOperator(tokenId: number): Promise<string> {
+    try {
+      const functionName = "setMinterAsOperator";
+      const setMinterAsOperator =
+        await this.proxyContractHandler.callImplementationFunction(
+          functionName,
+          tokenId
+        );
+      const hash: string = await setMinterAsOperator?.hash;
+      return hash;
+    } catch (error) {
+      return "Operation failed: " + error;
+    }
+  }
+
+  /**
+   * //* This function is used to unset minter as operator
+     //! Only Contract owner can make this call
+    * @param {number} tokenId - The tokenized bond id
+    * @returns {string} - The operation hash
+    */
+  async unsetMinterAsOperator(tokenId: number): Promise<string> {
+    try {
+      const functionName = "unsetMinterAsOperator";
+      const unsetMinterAsOperator =
+        await this.proxyContractHandler.callImplementationFunction(
+          functionName,
+          tokenId
+        );
+      const hash: string = await unsetMinterAsOperator?.hash;
+      return hash;
+    } catch (error) {
+      return "Operation failed: " + error;
+    }
+  }
+
+  /**
+   * //* This function is used to unfreeze a tokenized bond
+     //! Only Contract owner can make this call
+   * @param {bigInt} tokenId - The tokenized bond id
+   * @returns {string} - The operation hash
+   */
+  async freezeToken(tokenId: BigInt): Promise<string> {
+    try {
+      const functionName = "freezeToken";
+      const freezeToken =
+        await this.proxyContractHandler.callImplementationFunction(
+          functionName,
+          tokenId
+        );
+      const hash: string = await freezeToken?.hash;
+      return hash;
+    } catch (error) {
+      return "Operation failed: " + error;
+    }
+  }
+
+  /**
+   * //* This function is used to resume a unfreeze a tokenized bond
+     //! Only Contract owner can make this call
+   * @param {bigInt} tokenId - The tokenized bond id
+   * @returns {string} - The operation hash
+   */
+  async unfreezeToken(tokenId: BigInt): Promise<string> {
+    try {
+      const functionName = "unfreezeToken";
+      const unfreezeToken =
+        await this.proxyContractHandler.callImplementationFunction(
+          functionName,
+          tokenId
+        );
+      const hash: string = await unfreezeToken?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
