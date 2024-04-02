@@ -1,9 +1,10 @@
 export class MintBond {
-  interestRate: number;
   expirationDate: number;
+  interestRate: number;
   tokenId: number;
   amount: number;
   custodial: boolean;
+  name: string;
 }
 
 export class Transfer {
@@ -11,11 +12,6 @@ export class Transfer {
   amount: number;
   sender: string;
   receiver: string;
-}
-
-export class Withdraw {
-  bondId: BigInt;
-  amount: number;
 }
 
 export class Minter {
