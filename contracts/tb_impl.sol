@@ -44,6 +44,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     }
 
     struct DepositWithdrawal {
+        uint tokenId;
         uint amountSent;
         uint timestamp;
         address senderAddress;
@@ -66,7 +67,6 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         bool tokenFrozen;
         bool tokenItrPaused;
         bool tokenItrExpiryPaused;
-        string _name;
     }
 
     enum OperatorAction {
@@ -407,26 +407,32 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     }
 
     // check ownership and operator permissions for a list of transfers
-    function checkOwnerAndOperator(TransferParam calldata _transfer) public view returns (bool) {
-        address sender = _transfer.senderAddress;
-        address receiver = _transfer.receiverAddress;
-        uint tokenId = _transfer.tokenId;
+    function checkOwnerAndOperator(uint transferId) public view returns (bool) {
+        DepositWithdrawal[] memory transfers = Transfers[transferId]; // Retrieve transfers for the given ID
 
-        if (msg.sender != sender) {
-            if (
-                (operator[msg.sender][tokenId] == sender ||
-                    _isOperatorForAll(sender)) ||
-                minterIsOperator(tokenId, sender)
-            ) continue;
-            return false;
+        for (uint256 i = 0; i < transfers.length; i++) {
+            DepositWithdrawal memory transfer = transfers[i];
+            address sender = transfer.senderAddress;
+            address receiver = transfer.receiverAddress;
+            uint tokenId = transfer.tokenId;
+
+            if (msg.sender != sender) {
+                if (
+                    (operator[msg.sender][tokenId] == receiver ||
+                        _isOperatorForAll(receiver)) ||
+                    minterIsOperator(tokenId, sender)
+                ) continue;
+                return false;
+            }
         }
+
         return true;
     }
 
-    function _isOperatorForAll(address _sender) internal view returns (bool) {
+    function _isOperatorForAll(address _receiver) internal view returns (bool) {
         bool isOpForAll = false;
-        for (uint256 i = 0; i < operatorForAll[_sender].length; i++) {
-            if (operatorForAll[_sender][i] == _sender) {
+        for (uint256 i = 0; i < operatorForAll[msg.sender].length; i++) {
+            if (operatorForAll[msg.sender][i] == _receiver) {
                 isOpForAll = true;
                 break;
             }
@@ -466,8 +472,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
             _custodial,
             false,
             _custodial,
-            true,
-            _name
+            true
         );
         // mint to the  minter address
         _mint(msg.sender, _tokenId, _amount);
@@ -494,7 +499,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
                     minterTokensMetadata[msg.sender][i].amount -= _amount;
                 }
             }
-        }
+        } 
         else {
             revert("Insufficient balance");
         }
@@ -517,6 +522,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         );
         Transfers[_tokenId].push(
             DepositWithdrawal(
+                _tokenId,
                 _amount,
                 block.timestamp,
                 _sender,
@@ -577,7 +583,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         uint _amount,
         address _sender,
         address _receiver
-    ) internal tokenExist(_tokenId) isNotFrozenToken(_tokenId) checkOwnerAndOperator(TransferParam(_tokenId, _amount, _sender, _receiver)) {
+    ) internal tokenExist(_tokenId) isNotFrozenToken(_tokenId) {
         require(transfer(_receiver, _tokenId, _amount), "Transfer failed");
         emit TokenInterTransfered(_sender, _receiver, _amount);
     }

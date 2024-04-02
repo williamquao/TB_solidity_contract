@@ -3,11 +3,9 @@ require("@nomicfoundation/hardhat-toolbox");
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.20",
-  defaultNetwork: "sepolia",
   networks: {
     sepolia: {
-      url: "https://rpc2.sepolia.org",
-      chainId: 11155111,
+      url: "https://ethereum-sepolia.publicnode.com",
       accounts: [TESTNET_PRIVATE_KEY],
     },
     basesepolia: {
@@ -16,7 +14,7 @@ module.exports = {
       accounts: [TESTNET_PRIVATE_KEY],
     },
     mainnet: {
-      url: "MAINNET_PROVIDER_URL",
+      url: "YOUR_MAINNET_PROVIDER_URL",
       chainId: 1,
       accounts: [MAINNET_PRIVATE_KEY],
     },

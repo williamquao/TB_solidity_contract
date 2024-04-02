@@ -1,15 +1,22 @@
 import { ethers } from "hardhat";
 
 const proxyContractAddress = process.env.PROXY_CONTRACT as string;
+const provider = new ethers.AlchemyProvider(
+  process.env.TESTNET,
+  process.env.APIKEY
+);
 
 export class ProxyContractHandler {
-  private proxyContract;
+  private wallet: ethers.Wallet;
+  private proxyContract: ethers.Contract;
 
-  constructor() {
-    (async () => {
-      const MyContract = await ethers.getContractFactory("TBImpl");
-      this.proxyContract = MyContract.attach(proxyContractAddress);
-    })();
+  constructor(privateKey: string) {
+    this.wallet = new ethers.Wallet(privateKey, provider);
+    this.proxyContract = new ethers.Contract(
+      proxyContractAddress,
+      implementationAbi,
+      this.wallet
+    );
   }
 
   //* This function is used upgrade TB contract implementation
@@ -40,3 +47,5 @@ export class ProxyContractHandler {
     return result;
   }
 }
+
+// module.exports = { ProxyContractHandler };
