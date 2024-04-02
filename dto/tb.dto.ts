@@ -19,8 +19,14 @@ export class Minter {
   newMinter: string;
 }
 
-// export class Transfer {
-//   bondId: BigInt;
-//   amount: number;
-//   receiver: string;
-// }
+enum OperatorAction {
+  Add = "Add",
+  Remove = "Remove",
+}
+
+export class OperatorParam {
+  action: OperatorAction;
+  owner: string;
+  tokenId: number;
+  operator: string;
+}

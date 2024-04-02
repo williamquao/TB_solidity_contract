@@ -1,22 +1,11 @@
-const ethers = require("ethers");
-const dotenv = require("dotenv");
 const hre = require("hardhat");
 
-dotenv.config();
-
 async function main() {
-  const privateKey = process.env.PRIVATE_KEY;
-  const provider = new ethers.AlchemyProvider(
-    process.env.TESTNET,
-    process.env.APIKEY
-  );
-
-  let wallet = new ethers.Wallet(privateKey, provider);
 
   let tbImplementationArtifacts = await hre.artifacts.readArtifact("TBImpl");
   let tbProxyArtifacts = await hre.artifacts.readArtifact("TBProxy");
 
-  const implementation = new ethers.ContractFactory(
+  const implementation =  hre.ethers.ContractFactory(
     tbImplementationArtifacts.abi,
     tbImplementationArtifacts.bytecode,
     wallet
@@ -26,7 +15,7 @@ async function main() {
   await impl.waitForDeployment();
   console.log("impl deployed to: ", impl.target);
 
-  const TBProxy = new ethers.ContractFactory(
+  const TBProxy = hre.ethers.ContractFactory(
     tbProxyArtifacts.abi,
     tbProxyArtifacts.bytecode,
     wallet

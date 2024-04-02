@@ -1,14 +1,14 @@
 import dotenv from "dotenv";
 import { ProxyContractHandler } from "./proxy_handler";
-import { MintBond, Minter, Transfer, Withdraw } from "../dto/tb.dto";
+import { MintBond, Minter, OperatorParam, Transfer } from "../dto/tb.dto";
 
 dotenv.config();
 
 export class TBClient {
   private proxyContractHandler;
 
-  constructor(privateKey: string) {
-    this.proxyContractHandler = new ProxyContractHandler(privateKey);
+  constructor() {
+    this.proxyContractHandler = new ProxyContractHandler();
   }
 
   /**
@@ -322,6 +322,36 @@ export class TBClient {
           tokenId
         );
       const hash: string = await unfreezeToken?.hash;
+      return hash;
+    } catch (error) {
+      return "Operation failed: " + error;
+    }
+  }
+
+  async updateOperators(operators: OperatorParam[]): Promise<string> {
+    try {
+      const functionName = "updateOperators";
+      const updateOperators =
+        await this.proxyContractHandler.callImplementationFunction(
+          functionName,
+          operators
+        );
+      const hash: string = await updateOperators?.hash;
+      return hash;
+    } catch (error) {
+      return "Operation failed: " + error;
+    }
+  }
+
+  async updateOperatorsForAll(operators: string[]): Promise<string> {
+    try {
+      const functionName = "updateOperatorsForAll";
+      const updateOperatorsForAll =
+        await this.proxyContractHandler.callImplementationFunction(
+          functionName,
+          operators
+        );
+      const hash: string = await updateOperatorsForAll?.hash;
       return hash;
     } catch (error) {
       return "Operation failed: " + error;
