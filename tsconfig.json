@@ -1,9 +1,10 @@
 {
     "compilerOptions": {
+        "esModuleInterop": true,
         "types": [
             "hardhat",
             "ethers",
-            "jest"
+            "mocha"
         ]
     },
 }

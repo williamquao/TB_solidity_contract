@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -12,17 +13,17 @@ module.exports = {
     sepolia: {
       url: "https://rpc2.sepolia.org",
       chainId: 11155111,
-      accounts: [TESTNET_PRIVATE_KEY],
+      accounts: [process.env.TESTNET_PRIVATE_KEY],
     },
-    basesepolia: {
+    baseSepolia: {
       url: "https://base-sepolia-rpc.publicnode.com",
       chainId: 84532,
-      accounts: [TESTNET_PRIVATE_KEY],
+      accounts: [process.env.BASE_TESTNET_PRIVATE_KEY],
     },
-    mainnet: {
-      url: "MAINNET_PROVIDER_URL",
-      chainId: 1,
-      accounts: [MAINNET_PRIVATE_KEY],
+    baseMainnet: {
+      url: "https://base-mainnet.public.blastapi.io",
+      chainId: 8453,
+      accounts: [process.env.MAINNET_PRIVATE_KEY],
     },
   },
 };

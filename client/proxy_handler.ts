@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+const ethers = require("hardhat");
 
 const proxyContractAddress = process.env.PROXY_CONTRACT as string;
 

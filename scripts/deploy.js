@@ -5,7 +5,7 @@ async function main() {
   const impl = await ethers.deployContract("TBImpl");
   await impl.waitForDeployment();
   console.log("impl deployed to: ", impl.target);
-  const tbProxy = await ethers.deployContract("TBProxy");
+  const tbProxy = await ethers.deployContract("TBProxy", [impl.target]);
 
   await tbProxy.waitForDeployment();
 

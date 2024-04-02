@@ -1,8 +1,5 @@
-import dotenv from "dotenv";
 import { ProxyContractHandler } from "./proxy_handler";
 import { MintBond, Minter, OperatorParam, Transfer } from "../dto/tb.dto";
-
-dotenv.config();
 
 export class TBClient {
   private proxyContractHandler;

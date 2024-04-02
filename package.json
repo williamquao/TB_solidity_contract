@@ -1,14 +1,15 @@
 {
   "name": "Tokenized Bond-project",
   "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.5",
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
-    "@types/jest": "^29.5.12",
+    "ethers": "^6.11.1",
     "hardhat": "^2.20.1"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.2",
     "chai": "^4.4.1",
     "dotenv": "^16.4.5",
-    "ethers": "^6.11.1"
+    "mocha": "^10.4.0"
   }
 }

@@ -298,7 +298,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         require(_minter != address(0), "Address is invalid");
         //cannot remove minter if tight to a token
         require(
-            minterTokensMetadata[_minter].length >= 1,
+            minterTokensMetadata[_minter].length <= 1,
             "Cannot remove minter"
         );
         delete minterTokensMetadata[_minter];
@@ -439,7 +439,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
             "Token already exist"
         );
         require(
-            _expirationDate >= block.timestamp,
+            _expirationDate > block.timestamp,
             "Expiration date must be above current time"
         );
         require(
@@ -487,140 +487,5 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
             revert("Insufficient balance");
         }
         emit TokenBurned(_tokenId, _amount);
-    }
-
-    function _deposit(
-        uint _tokenId,
-        uint _amount,
-        address _sender,
-        address _receiver
-    ) internal tokenExist(_tokenId) isNotFrozenToken(_tokenId) {
-        require(
-            _amount >= unitPrice && _amount % unitPrice == 0,
-            "Amount must be in multiples of unit price"
-        );
-        require(
-            _amount <= balanceOf[_sender][_tokenId],
-            "Insufficient balance"
-        );
-        Transfers[_tokenId].push(
-            DepositWithdrawal(
-                _amount,
-                block.timestamp,
-                _sender,
-                _receiver,
-                Status.DEPOSIT
-            )
-        );
-        bool success = transfer(_receiver, _tokenId, _amount);
-        require(success, "Transfer failed");
-        emit TransferWithdrawal(
-            _sender,
-            _receiver,
-            _tokenId,
-            _amount,
-            Status.DEPOSIT
-        );
-    }
-
-    // users can withdraw, that is they send their bond tokens back to the minter of the specific bond
-    function _withdraw(
-        uint _tokenId,
-        uint _amount,
-        address _sender,
-        address _receiver
-    ) internal tokenExist(_tokenId) isNotFrozenToken(_tokenId) {
-        require(
-            _amount >= unitPrice && _amount % unitPrice == 0,
-            "Amount must be in multiples of unit price"
-        );
-        require(
-            _amount <= balanceOf[_sender][_tokenId],
-            "Insufficient balance"
-        );
-        require(transfer(_receiver, _tokenId, _amount), "Transfer failed");
-
-        Transfers[_tokenId].push(
-            DepositWithdrawal(
-                _amount,
-                block.timestamp,
-                _sender,
-                _receiver,
-                Status.WITHDRAW
-            )
-        );
-
-        emit TransferWithdrawal(
-            _sender,
-            _receiver,
-            _tokenId,
-            _amount,
-            Status.WITHDRAW
-        );
-    }
-
-    function _interTransfer(
-        uint _tokenId,
-        uint _amount,
-        address _sender,
-        address _receiver
-    ) internal tokenExist(_tokenId) isNotFrozenToken(_tokenId) {
-        TransferParam memory _transfer = TransferParam(_tokenId, _amount, _sender, _receiver);
-        require(checkOwnerAndOperator(_transfer), "Sender must be Caller or operator");
-        require(transfer(_receiver, _tokenId, _amount), "Transfer failed");
-        emit TokenInterTransfered(_sender, _receiver, _amount);
-    }
-
-    function makeTransfer(
-        TransferParam[] calldata _transfers
-    ) external notPausedContract isInputListValid(_transfers.length) {
-        for (uint i = 0; i < _transfers.length; i++) {
-            uint tokenId = _transfers[i].tokenId;
-            uint amount = _transfers[i].amount;
-            address sender = _transfers[i].sender;
-            address receiver = _transfers[i].receiver;
-
-            require(
-                _interTransferAllowed(tokenId, sender, receiver),
-                "Inter transfer not allowed"
-            );
-            require(
-                _isInterTransferAfterExpiryAllowed(tokenId, receiver),
-                "Inter transfer after expiry not allowed"
-            );
-            require(
-                sender != receiver,
-                "Sender must be different from receiver"
-            );
-
-            require(
-                amount >= unitPrice && amount % unitPrice == 0,
-                "Amount must be in multiples of unit price"
-            );
-            require(
-                balanceOf[sender][tokenId] >= amount,
-                "Insufficient balance"
-            );
-            //if sender is token minter, it's a deposit else withdraw
-            if (
-                sender == TokenMetadata[tokenId].minter
-            ) {
-                require(
-                    _isTokenMinter(tokenId, msg.sender),
-                    "Caller must be token minter"
-                );
-                _deposit(tokenId, amount, sender, receiver);
-            } else if (
-                receiver == TokenMetadata[tokenId].minter 
-            ) {
-                require(
-                    _isTokenMinter(tokenId, receiver),
-                    "Receiver must be token minter"
-                );
-                _withdraw(tokenId, amount, sender, receiver);
-            } else {
-                _interTransfer(tokenId, amount, sender, receiver);
-            }
-        }
     }
 }
