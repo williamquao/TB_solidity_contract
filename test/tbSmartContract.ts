@@ -1,18 +1,15 @@
 const { ethers } = require("hardhat");
-const { expect } = require("chai");
+const { testExpect } = require("chai");
 
 describe("Tokenized bonds Test", () => {
   let tbContract;
   let tbProxyContract;
   let tbImplementationContract;
   let signers;
-  const bondId = BigInt(
-    "12459123034594101601133848791414057143407166679711044500175648910976503210763"
-  );
 
   const invalidAddress = "0x0000000000000000000000000000000000000000";
 
-  before(async () => {
+  beforeAll(async () => {
     signers = await ethers.getSigners();
 
     // deploy implementation contract
@@ -35,17 +32,17 @@ describe("Tokenized bonds Test", () => {
 
   describe("Test deployment", async () => {
     it("should deploy Tokenized bond implementation contract", async () => {
-      expect(tbImplementationContract).to.not.be.undefined;
-      expect(tbImplementationContract).to.be.a("string");
-      expect(tbImplementationContract).to.not.equal(
+      testExpect(tbImplementationContract).to.not.be.undefined;
+      testExpect(tbImplementationContract).to.be.a("string");
+      testExpect(tbImplementationContract).to.not.equal(
         "0x0000000000000000000000000000000000000000"
       );
     });
 
     it("should deploy Tokenized bond proxy contract", async () => {
-      expect(tbProxyContract).to.not.be.undefined;
-      expect(tbProxyContract).to.be.a("string");
-      expect(tbProxyContract).to.not.equal(
+      testExpect(tbProxyContract).to.not.be.undefined;
+      testExpect(tbProxyContract).to.be.a("string");
+      testExpect(tbProxyContract).to.not.equal(
         "0x0000000000000000000000000000000000000000"
       );
     });
@@ -53,20 +50,20 @@ describe("Tokenized bonds Test", () => {
 
   describe("Test Minter Add", async () => {
     it("should fail if caller is not contract owner", async () => {
-      await expect(
+      await testExpect(
         tbContract.connect(signers[2]).addMinter(await signers[2].getAddress())
       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
     });
     it("should successfully add a minter", async () => {
       const minter = await tbContract.addMinter(await signers[2].getAddress());
-      expect(minter.hash).to.not.be.undefined;
-      expect(minter.hash).to.be.a("string");
+      testExpect(minter.hash).to.not.be.undefined;
+      testExpect(minter.hash).to.be.a("string");
     });
   });
 
   describe("Test Minter Replace", async () => {
     it("should fail if caller is not contract owner", async () => {
-      await expect(
+      await testExpect(
         tbContract
           .connect(signers[2])
           .replaceMinter(
@@ -78,7 +75,7 @@ describe("Tokenized bonds Test", () => {
 
     it("should fail if contract is paused", async () => {
       await tbContract.pause();
-      await expect(
+      await testExpect(
         tbContract.replaceMinter(
           await signers[2].getAddress(),
           await signers[3].getAddress()
@@ -88,13 +85,13 @@ describe("Tokenized bonds Test", () => {
 
     it("should fail if new minter address is invalid", async () => {
       await tbContract.resume();
-      await expect(
+      await testExpect(
         tbContract.replaceMinter(await signers[2].getAddress(), invalidAddress)
       ).to.be.rejectedWith("Address is invalid");
     });
 
     it("should fail if previous minter doesn't exist", async () => {
-      await expect(
+      await testExpect(
         tbContract.replaceMinter(
           await signers[1].getAddress(),
           await signers[3].getAddress()
@@ -103,7 +100,7 @@ describe("Tokenized bonds Test", () => {
     });
 
     it("should fail if new minter already exist", async () => {
-      await expect(
+      await testExpect(
         tbContract.replaceMinter(
           await signers[2].getAddress(),
           await signers[2].getAddress()
@@ -116,14 +113,14 @@ describe("Tokenized bonds Test", () => {
         await signers[2].getAddress(),
         await signers[1].getAddress()
       );
-      expect(minter.hash).to.not.be.undefined;
-      expect(minter.hash).to.be.a("string");
+      testExpect(minter.hash).to.not.be.undefined;
+      testExpect(minter.hash).to.be.a("string");
     });
   });
 
   describe("Test Minter Removal", async () => {
     it("should fail if caller is not contract owner", async () => {
-      await expect(
+      await testExpect(
         tbContract
           .connect(signers[1])
           .removeMinter(await signers[1].getAddress())
@@ -131,12 +128,12 @@ describe("Tokenized bonds Test", () => {
     });
     it("should fail if contract is paused", async () => {
       await tbContract.pause();
-      await expect(
+      await testExpect(
         tbContract.removeMinter(await signers[1].getAddress())
       ).to.be.rejectedWith("Contract is paused");
     });
     it("should fail if new minter address is invalid", async () => {
-      await expect(tbContract.removeMinter(invalidAddress)).to.be.rejectedWith(
+      await testExpect(tbContract.removeMinter(invalidAddress)).to.be.rejectedWith(
         "Address is invalid"
       );
     });
@@ -144,7 +141,7 @@ describe("Tokenized bonds Test", () => {
       await tbContract
         .connect(signers[1])
         .mint(100, 1, 1743458951, 1000000, true);
-      await expect(
+      await testExpect(
         tbContract.removeMinter(await signers[1].getAddress())
       ).to.be.rejectedWith("Cannot remove minter");
     });
@@ -153,15 +150,15 @@ describe("Tokenized bonds Test", () => {
       const minter = await tbContract.removeMinter(
         await signers[2].getAddress()
       );
-      expect(minter.hash).to.not.be.undefined;
-      expect(minter.hash).to.be.a("string");
+      testExpect(minter.hash).to.not.be.undefined;
+      testExpect(minter.hash).to.be.a("string");
     });
   });
 
   describe("Test Bond Minting", async () => {
     it("should fail if contract is paused", async () => {
       await tbContract.pause();
-      await expect(
+      await testExpect(
         tbContract
           .connect(signers[6])
           .mint(1743458951, 10, 1, 1000000, true, "CMR Bond")
@@ -169,28 +166,28 @@ describe("Tokenized bonds Test", () => {
     });
     it("should fail if caller is not minter", async () => {
       await tbContract.resume();
-      await expect(
+      await testExpect(
         tbContract
           .connect(signers[6])
           .mint(1743458951, 10, 1, 1000000, true, "CMR Bond")
       ).to.be.rejectedWith("Minter does not exist");
     });
     it("should fail if expiration date is less than present", async () => {
-      await expect(
+      await testExpect(
         tbContract
           .connect(signers[1])
           .mint(1643458951, 10, 1, 1000000, true, "CMR Bond")
       ).to.be.rejectedWith("Expiration date must be above current time");
     });
     it("should fail if expiration date is less than present", async () => {
-      await expect(
+      await testExpect(
         tbContract
           .connect(signers[1])
           .mint(1743458951, 10, 1, 100, true, "CMR Bond")
       ).to.be.rejectedWith("Amount must be in multiples of unit price");
     });
     it("should fail if interest rate is <= 0", async () => {
-      await expect(
+      await testExpect(
         tbContract
           .connect(signers[1])
           .mint(1743458951, 0, 1, 1000000, true, "CMR Bond")
@@ -205,11 +202,11 @@ describe("Tokenized bonds Test", () => {
         true,
         "CMR Bond"
       );
-      expect(trx.hash).to.not.be.undefined;
-      expect(trx.hash).to.be.a("string");
+      testExpect(trx.hash).to.not.be.undefined;
+      testExpect(trx.hash).to.be.a("string");
     });
     it("should fail if token id already exist", async () => {
-      await expect(
+      await testExpect(
         tbContract
           .connect(signers[1])
           .mint(1743458951, 10, 1, 100000, true, "CMR Bond")
@@ -220,48 +217,48 @@ describe("Tokenized bonds Test", () => {
   describe("Test Token Burning", async () => {
     it("should fail if contract is paused", async () => {
       await tbContract.pause();
-      await expect(
+      await testExpect(
         tbContract.connect(signers[6]).burn(1, 1000000)
       ).to.be.rejectedWith("Contract is paused");
     });
     it("should fail if token id doesn't exist", async () => {
       await tbContract.resume();
-      await expect(
+      await testExpect(
         tbContract.connect(signers[6]).burn(3, 1000000)
       ).to.be.rejectedWith("Token does not exist");
     });
     it("should fail if caller is not minter", async () => {
-      await expect(
+      await testExpect(
         tbContract.connect(signers[1]).burn(1, 0)
       ).to.be.rejectedWith("Amount cannot be less than 0");
     });
     it("should fail if amount is greater than minter's balance", async () => {
-      await expect(
+      await testExpect(
         tbContract.connect(signers[1]).burn(1, 1000000000)
       ).to.be.rejectedWith("Amount must be less than balance");
     });
 
     it("should successfully burn a token", async () => {
       const trx = await tbContract.connect(signers[1]).burn(1, 1000);
-      expect(trx.hash).to.not.be.undefined;
-      expect(trx.hash).to.be.a("string");
+      testExpect(trx.hash).to.not.be.undefined;
+      testExpect(trx.hash).to.be.a("string");
     });
   });
   describe("Test Token Freezing", async () => {
     it("should fail if caller is not contract owner", async () => {
-      await expect(
+      await testExpect(
         tbContract.connect(signers[2]).freezeToken(1)
       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
     });
 
     it("should successfully freeze a token", async () => {
       const minter = await tbContract.freezeToken(1);
-      expect(minter.hash).to.not.be.undefined;
-      expect(minter.hash).to.be.a("string");
+      testExpect(minter.hash).to.not.be.undefined;
+      testExpect(minter.hash).to.be.a("string");
     });
 
     it("should fail if token is already frozen", async () => {
-      await expect(tbContract.freezeToken(1)).to.be.rejectedWith(
+      await testExpect(tbContract.freezeToken(1)).to.be.rejectedWith(
         "Token already frozen"
       );
     });
@@ -269,19 +266,19 @@ describe("Tokenized bonds Test", () => {
 
   describe("Test Token unFreezing", async () => {
     it("should fail if caller is not contract owner", async () => {
-      await expect(
+      await testExpect(
         tbContract.connect(signers[2]).unfreezeToken(1)
       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
     });
 
     it("should successfully unfreeze a token", async () => {
       const minter = await tbContract.unfreezeToken(1);
-      expect(minter.hash).to.not.be.undefined;
-      expect(minter.hash).to.be.a("string");
+      testExpect(minter.hash).to.not.be.undefined;
+      testExpect(minter.hash).to.be.a("string");
     });
 
     it("should fail if token is not frozen", async () => {
-      await expect(tbContract.unfreezeToken(1)).to.be.rejectedWith(
+      await testExpect(tbContract.unfreezeToken(1)).to.be.rejectedWith(
         "Token not frozen"
       );
     });
@@ -289,57 +286,57 @@ describe("Tokenized bonds Test", () => {
 
   describe("Test pause InterTransfer", async () => {
     it("should fail if caller is not contract owner", async () => {
-      await expect(
+      await testExpect(
         tbContract.connect(signers[2]).pauseInterTransfer(1)
       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
     });
 
     it("should fail if token doesn't exist", async () => {
-      await expect(tbContract.pauseInterTransfer(8)).to.be.rejectedWith(
+      await testExpect(tbContract.pauseInterTransfer(8)).to.be.rejectedWith(
         "Token does not exist"
       );
     });
 
     it("should successfully pause InterTransfer for a token", async () => {
       const minter = await tbContract.pauseInterTransfer(1);
-      expect(minter.hash).to.not.be.undefined;
-      expect(minter.hash).to.be.a("string");
+      testExpect(minter.hash).to.not.be.undefined;
+      testExpect(minter.hash).to.be.a("string");
     });
 
     it("should fail if token InterTransfer is already paused", async () => {
-      await expect(tbContract.pauseInterTransfer(1)).to.be.rejectedWith(
+      await testExpect(tbContract.pauseInterTransfer(1)).to.be.rejectedWith(
         "InterTransfer is already paused"
       );
     });
   });
   describe("Test resume InterTransfer", async () => {
     it("should fail if caller is not contract owner", async () => {
-      await expect(
+      await testExpect(
         tbContract.connect(signers[2]).resumeInterTransfer(1)
       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
     });
 
     it("should fail if token doesn't exist", async () => {
-      await expect(tbContract.resumeInterTransfer(8)).to.be.rejectedWith(
+      await testExpect(tbContract.resumeInterTransfer(8)).to.be.rejectedWith(
         "Token does not exist"
       );
     });
 
     it("should successfully InterTransfer for a token", async () => {
       const minter = await tbContract.resumeInterTransfer(1);
-      expect(minter.hash).to.not.be.undefined;
-      expect(minter.hash).to.be.a("string");
+      testExpect(minter.hash).to.not.be.undefined;
+      testExpect(minter.hash).to.be.a("string");
     });
 
     it("should fail if token InterTransfer is already resumed", async () => {
-      await expect(tbContract.resumeInterTransfer(1)).to.be.rejectedWith(
+      await testExpect(tbContract.resumeInterTransfer(1)).to.be.rejectedWith(
         "InterTransfer is not paused"
       );
     });
 
     describe("Test resume InterTransfer After Expiry", async () => {
       it("should fail if caller is not contract owner", async () => {
-        await expect(
+        await testExpect(
           tbContract.connect(signers[2]).pauseItrAfterExpiry(1)
         ).to.be.rejectedWith("OwnableUnauthorizedAccount");
       });
@@ -354,7 +351,7 @@ describe("Tokenized bonds Test", () => {
   //         minter: signers[3].getAddress(),
   //       };
 
-  //       await expect(
+  //       await testExpect(
   //         tbContract
   //           .connect(signers[2])
   //           .createBond(
@@ -373,7 +370,7 @@ describe("Tokenized bonds Test", () => {
   //         name: "CMR BOND",
   //         minter: signers[3].getAddress(),
   //       };
-  //       await expect(
+  //       await testExpect(
   //         tbContract.createBond(
   //           bondParam.initialSupply,
   //           bondParam.maturityDate,
@@ -390,7 +387,7 @@ describe("Tokenized bonds Test", () => {
   //         name: "CMR BOND",
   //         minter: signers[3].getAddress(),
   //       };
-  //       await expect(
+  //       await testExpect(
   //         tbContract.createBond(
   //           bondParam.initialSupply,
   //           bondParam.maturityDate,
@@ -408,7 +405,7 @@ describe("Tokenized bonds Test", () => {
   //         minter: signers[3].getAddress(),
   //       };
 
-  //       await expect(
+  //       await testExpect(
   //         tbContract.createBond(
   //           0,
   //           bondParam.maturityDate,
@@ -426,7 +423,7 @@ describe("Tokenized bonds Test", () => {
   //         minter: signers[1].getAddress(),
   //       };
 
-  //       await expect(
+  //       await testExpect(
   //         tbContract
   //           .connect(signers[0])
   //           .createBond(
@@ -454,7 +451,7 @@ describe("Tokenized bonds Test", () => {
   //         minter: signers[3].getAddress(),
   //       };
 
-  //       await expect(
+  //       await testExpect(
   //         tbContract.createBond(
   //           bondParam.initialSupply,
   //           bondParam.maturityDate,
@@ -469,14 +466,14 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if bondId doesn't exist", async () => {
   //       const nonExistentBondId = 123;
   //       const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
-  //       await expect(
+  //       await testExpect(
   //         tbContract.deposit(nonExistentBondId, 5000, userAddress)
   //       ).to.rejectedWith("Bond does not exist");
   //     });
 
   //     it("should fail if sender is not minter", async () => {
   //       const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[2]).deposit(bondId, 5000, userAddress)
   //       ).to.rejectedWith("Caller is not minter");
   //     });
@@ -484,7 +481,7 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if bond is paused", async () => {
   //       await tbContract.pauseBond(bondId);
   //       const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[1]).deposit(bondId, 5000, userAddress)
   //       ).to.rejectedWith("Bond is paused");
   //     });
@@ -492,14 +489,14 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if amount is not in multiple of unit price", async () => {
   //       await tbContract.resumeBond(bondId);
   //       const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[1]).deposit(bondId, 5200, userAddress)
   //       ).to.rejectedWith("Amount must be in multiples of unit price");
   //     });
 
   //     it("should fail if sending more than account balance", async () => {
   //       const userAddress = "0xDC5B997B6aF291FDD575De44fd89205BbBAeF8da";
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[1]).deposit(bondId, 200000000, userAddress)
   //       ).to.rejectedWith("Insufficient balance");
   //     });
@@ -509,8 +506,8 @@ describe("Tokenized bonds Test", () => {
   //       const deposit = await tbContract
   //         .connect(signers[1])
   //         .deposit(bondId, 5000, userAddress);
-  //       expect(deposit.hash).to.not.be.undefined;
-  //       expect(deposit.hash).to.be.a("string");
+  //       testExpect(deposit.hash).to.not.be.undefined;
+  //       testExpect(deposit.hash).to.be.a("string");
   //     });
 
   //     it("should fail if sending a bulk deposit beyond 15", async () => {
@@ -538,7 +535,7 @@ describe("Tokenized bonds Test", () => {
   //         { bondId, amount: 1000, user: user2 },
   //       ];
 
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[1]).depositBulk(depositsTuples)
   //       ).to.rejectedWith("Deposit list should not be above 15");
   //     });
@@ -556,35 +553,35 @@ describe("Tokenized bonds Test", () => {
   //       const deposit = await tbContract
   //         .connect(signers[1])
   //         .depositBulk(depositsTuples);
-  //       expect(deposit.hash).to.not.be.undefined;
-  //       expect(deposit.hash).to.be.a("string");
+  //       testExpect(deposit.hash).to.not.be.undefined;
+  //       testExpect(deposit.hash).to.be.a("string");
   //     });
   //   });
 
   //   describe("Bond withdraw by Users", () => {
   //     it("should fail if bondId doesn't exist", async () => {
   //       const nonExistentBondId = 123;
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[5]).withdraw(nonExistentBondId, 5000)
   //       ).to.rejectedWith("Bond does not exist");
   //     });
 
   //     it("should fail if bond is paused", async () => {
   //       await tbContract.pauseBond(bondId);
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[5]).withdraw(bondId, 5000)
   //       ).to.rejectedWith("Bond is paused");
   //     });
 
   //     it("should fail if amount to withdraw is not in multiple of unit price", async () => {
   //       await tbContract.resumeBond(bondId);
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[5]).withdraw(bondId, 2300)
   //       ).to.rejectedWith("Amount must be in multiples of unit price");
   //     });
 
   //     it("should fail if insufficient balance", async () => {
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[5]).withdraw(bondId, 20000000)
   //       ).to.rejectedWith("Insufficient balance");
   //     });
@@ -597,9 +594,9 @@ describe("Tokenized bonds Test", () => {
   //         .connect(signers[5])
   //         .BondDepositWithdraws(bondId, 0);
 
-  //       expect(withdraw.hash).to.not.be.undefined;
-  //       expect(withdraw.hash).to.be.a("string");
-  //       expect(retrieveWithdraw).to.not.be.undefined;
+  //       testExpect(withdraw.hash).to.not.be.undefined;
+  //       testExpect(withdraw.hash).to.be.a("string");
+  //       testExpect(retrieveWithdraw).to.not.be.undefined;
   //     });
   //   });
 
@@ -607,7 +604,7 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if bondId doesn't exist", async () => {
   //       const nonExistentBondId = 123;
 
-  //       await expect(
+  //       await testExpect(
   //         tbContract.updateBondMinter(
   //           nonExistentBondId,
   //           await signers[2].getAddress()
@@ -617,7 +614,7 @@ describe("Tokenized bonds Test", () => {
 
   //     it("should fail if bond is paused", async () => {
   //       await tbContract.pauseBond(bondId);
-  //       await expect(
+  //       await testExpect(
   //         tbContract.updateBondMinter(bondId, await signers[2].getAddress())
   //       ).to.rejectedWith("Bond is paused");
   //     });
@@ -625,13 +622,13 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if new minter address is invalid", async () => {
   //       const invalidAddress = "0x0000000000000000000000000000000000000000";
   //       await tbContract.resumeBond(bondId);
-  //       await expect(
+  //       await testExpect(
   //         tbContract.updateBondMinter(bondId, invalidAddress)
   //       ).to.rejectedWith("Address is invalid");
   //     });
 
   //     it("should fail if new minter address is current minter", async () => {
-  //       await expect(
+  //       await testExpect(
   //         tbContract.updateBondMinter(bondId, await signers[1].getAddress())
   //       ).to.rejectedWith("Already current minter");
   //     });
@@ -641,8 +638,8 @@ describe("Tokenized bonds Test", () => {
   //         bondId,
   //         await signers[2].getAddress()
   //       );
-  //       expect(newMinter.hash).to.not.be.undefined;
-  //       expect(newMinter.hash).to.be.a("string");
+  //       testExpect(newMinter.hash).to.not.be.undefined;
+  //       testExpect(newMinter.hash).to.be.a("string");
   //     });
 
   //     it("should successfully replace minters from various bonds", async () => {
@@ -672,14 +669,14 @@ describe("Tokenized bonds Test", () => {
   //       ];
 
   //       const replaceBulk = await tbContract.replaceMintBulk(replaceMintTuples);
-  //       expect(replaceBulk.hash).to.not.be.undefined;
-  //       expect(replaceBulk.hash).to.be.a("string");
+  //       testExpect(replaceBulk.hash).to.not.be.undefined;
+  //       testExpect(replaceBulk.hash).to.be.a("string");
   //     });
   //   });
 
   //   describe("Bond pause", () => {
   //     it("should fail if caller is not contract owner", async () => {
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[2]).pauseBond(bondId)
   //       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
   //     });
@@ -687,14 +684,14 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if bond doesn't exist", async () => {
   //       const nonExistentBondId = 123;
 
-  //       await expect(tbContract.pauseBond(nonExistentBondId)).to.rejectedWith(
+  //       await testExpect(tbContract.pauseBond(nonExistentBondId)).to.rejectedWith(
   //         "Bond does not exist"
   //       );
   //     });
 
   //     it("should fail if bond is already paused", async () => {
   //       await tbContract.pauseBond(bondId);
-  //       await expect(tbContract.pauseBond(bondId)).to.rejectedWith(
+  //       await testExpect(tbContract.pauseBond(bondId)).to.rejectedWith(
   //         "Bond is paused"
   //       );
   //     });
@@ -703,14 +700,14 @@ describe("Tokenized bonds Test", () => {
   //       await tbContract.resumeBond(bondId);
 
   //       const bond = await tbContract.pauseBond(bondId);
-  //       expect(bond.hash).to.not.be.undefined;
-  //       expect(bond.hash).to.be.a("string");
+  //       testExpect(bond.hash).to.not.be.undefined;
+  //       testExpect(bond.hash).to.be.a("string");
   //     });
   //   });
 
   //   describe("Bond resume", () => {
   //     it("should fail if caller is not contract owner", async () => {
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[2]).resumeBond(bondId)
   //       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
   //     });
@@ -718,14 +715,14 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if bond doesn't exist", async () => {
   //       const nonExistentBondId = 123;
 
-  //       await expect(tbContract.resumeBond(nonExistentBondId)).to.rejectedWith(
+  //       await testExpect(tbContract.resumeBond(nonExistentBondId)).to.rejectedWith(
   //         "Bond does not exist"
   //       );
   //     });
 
   //     it("should fail if bond has already resume", async () => {
   //       await tbContract.resumeBond(bondId);
-  //       await expect(tbContract.resumeBond(bondId)).to.rejectedWith(
+  //       await testExpect(tbContract.resumeBond(bondId)).to.rejectedWith(
   //         "Bond not paused"
   //       );
   //     });
@@ -734,14 +731,14 @@ describe("Tokenized bonds Test", () => {
   //       await tbContract.pauseBond(bondId);
 
   //       const bond = await tbContract.resumeBond(bondId);
-  //       expect(bond.hash).to.not.be.undefined;
-  //       expect(bond.hash).to.be.a("string");
+  //       testExpect(bond.hash).to.not.be.undefined;
+  //       testExpect(bond.hash).to.be.a("string");
   //     });
   //   });
 
   //   describe("Enable bond inter transfer", () => {
   //     it("should fail if caller is not contract owner", async () => {
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[2]).enableInterTransfer(bondId)
   //       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
   //     });
@@ -749,14 +746,14 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if bond doesn't exist", async () => {
   //       const nonExistentBondId = 123;
 
-  //       await expect(
+  //       await testExpect(
   //         tbContract.enableInterTransfer(nonExistentBondId)
   //       ).to.rejectedWith("Bond does not exist");
   //     });
 
   //     it("should fail if bond is paused", async () => {
   //       await tbContract.pauseBond(bondId);
-  //       await expect(tbContract.enableInterTransfer(bondId)).to.rejectedWith(
+  //       await testExpect(tbContract.enableInterTransfer(bondId)).to.rejectedWith(
   //         "Bond is paused"
   //       );
   //     });
@@ -764,7 +761,7 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if bond already has inter transfer enabled", async () => {
   //       await tbContract.resumeBond(bondId);
   //       await tbContract.enableInterTransfer(bondId);
-  //       await expect(tbContract.enableInterTransfer(bondId)).to.rejectedWith(
+  //       await testExpect(tbContract.enableInterTransfer(bondId)).to.rejectedWith(
   //         "Already enabled"
   //       );
   //     });
@@ -773,14 +770,14 @@ describe("Tokenized bonds Test", () => {
   //       await tbContract.disableInterTransfer(bondId);
 
   //       const bond = await tbContract.enableInterTransfer(bondId);
-  //       expect(bond.hash).to.not.be.undefined;
-  //       expect(bond.hash).to.be.a("string");
+  //       testExpect(bond.hash).to.not.be.undefined;
+  //       testExpect(bond.hash).to.be.a("string");
   //     });
   //   });
 
   //   describe("Disable bond inter transfer", () => {
   //     it("should fail if caller is not contract owner", async () => {
-  //       await expect(
+  //       await testExpect(
   //         tbContract.connect(signers[2]).disableInterTransfer(bondId)
   //       ).to.be.rejectedWith("OwnableUnauthorizedAccount");
   //     });
@@ -788,14 +785,14 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if bond doesn't exist", async () => {
   //       const nonExistentBondId = 123;
 
-  //       await expect(
+  //       await testExpect(
   //         tbContract.disableInterTransfer(nonExistentBondId)
   //       ).to.rejectedWith("Bond does not exist");
   //     });
 
   //     it("should fail if bond is paused", async () => {
   //       await tbContract.pauseBond(bondId);
-  //       await expect(tbContract.disableInterTransfer(bondId)).to.rejectedWith(
+  //       await testExpect(tbContract.disableInterTransfer(bondId)).to.rejectedWith(
   //         "Bond is paused"
   //       );
   //     });
@@ -804,7 +801,7 @@ describe("Tokenized bonds Test", () => {
   //       await tbContract.resumeBond(bondId);
 
   //       await tbContract.disableInterTransfer(bondId);
-  //       await expect(tbContract.disableInterTransfer(bondId)).to.rejectedWith(
+  //       await testExpect(tbContract.disableInterTransfer(bondId)).to.rejectedWith(
   //         "Already disabled"
   //       );
   //     });
@@ -813,8 +810,8 @@ describe("Tokenized bonds Test", () => {
   //       await tbContract.enableInterTransfer(bondId);
 
   //       const bond = await tbContract.disableInterTransfer(bondId);
-  //       expect(bond.hash).to.not.be.undefined;
-  //       expect(bond.hash).to.be.a("string");
+  //       testExpect(bond.hash).to.not.be.undefined;
+  //       testExpect(bond.hash).to.be.a("string");
   //     });
   //   });
 
@@ -822,7 +819,7 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if bond doesn't exist", async () => {
   //       const nonExistentBondId = 123;
 
-  //       await expect(
+  //       await testExpect(
   //         tbContract.transferBondAmongUsers(
   //           nonExistentBondId,
   //           100,
@@ -833,7 +830,7 @@ describe("Tokenized bonds Test", () => {
 
   //     it("should fail if bond is paused", async () => {
   //       await tbContract.pauseBond(bondId);
-  //       await expect(
+  //       await testExpect(
   //         tbContract.transferBondAmongUsers(
   //           bondId,
   //           100,
@@ -845,7 +842,7 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if bond inter transfer is disabled", async () => {
   //       await tbContract.resumeBond(bondId);
 
-  //       await expect(
+  //       await testExpect(
   //         tbContract.transferBondAmongUsers(
   //           bondId,
   //           100,
@@ -857,7 +854,7 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if amount of bond sent isn't in multiples of unit price ", async () => {
   //       tbContract.enableInterTransfer(bondId);
 
-  //       await expect(
+  //       await testExpect(
   //         tbContract
   //           .connect(signers[5])
   //           .transferBondAmongUsers(bondId, 1020, await signers[7].getAddress())
@@ -867,7 +864,7 @@ describe("Tokenized bonds Test", () => {
   //     it("should fail if sender's balance is insufficient", async () => {
   //       tbContract.enableInterTransfer(bondId);
 
-  //       await expect(
+  //       await testExpect(
   //         tbContract
   //           .connect(signers[5])
   //           .transferBondAmongUsers(
@@ -882,8 +879,8 @@ describe("Tokenized bonds Test", () => {
   //       const interTransfer = await tbContract
   //         .connect(signers[5])
   //         .transferBondAmongUsers(bondId, 1000, await signers[7].getAddress());
-  //       expect(interTransfer.hash).to.not.be.undefined;
-  //       expect(interTransfer.hash).to.be.a("string");
+  //       testExpect(interTransfer.hash).to.not.be.undefined;
+  //       testExpect(interTransfer.hash).to.be.a("string");
   //     });
   //   });
 });
