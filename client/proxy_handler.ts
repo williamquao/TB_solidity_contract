@@ -1,4 +1,8 @@
 import { ethers } from "hardhat";
+import dotenv from "dotenv";
+import implementationAbi from "../implementationAbi.json";
+
+dotenv.config();
 
 const proxyContractAddress = process.env.PROXY_CONTRACT as string;
 

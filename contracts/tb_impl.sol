@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import "./ERC-6909.sol";
+// import "./tb_interface.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TBImpl is Ownable(msg.sender), ERC6909 {
@@ -32,8 +33,6 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         address indexed receiver,
         uint amount
     );
-    event OperatorsUpdated(address indexed sender, bool isUpdated);
-    event TokenBurned(uint tokenId, uint amount);
 
     uint public constant unitPrice = 1000;
     bool public isContractPaused;
@@ -103,7 +102,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     modifier tokenExist(uint _tokenId) {
         require(
             TokenMetadata[_tokenId].expirationDate != 0,
-            "Token does not exist"
+            "token does not exist"
         );
         _;
     }
@@ -235,7 +234,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     //----------------------------------------------------------------
     // MINTER IS OPERATOR
     //----------------------------------------------------------------
-    function setMinterAsOperator(uint _tokenId) external onlyOwner tokenExist(_tokenId){
+    function setMinterAsOperator(uint _tokenId) external onlyOwner {
         require(
             !TokenMetadata[_tokenId].minterIsOperator,
             "Minter is already operator"
@@ -243,7 +242,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         TokenMetadata[_tokenId].minterIsOperator = true;
     }
 
-    function unsetMinterAsOperator(uint _tokenId) external onlyOwner tokenExist(_tokenId){
+    function unsetMinterAsOperator(uint _tokenId) external onlyOwner {
         require(
             TokenMetadata[_tokenId].minterIsOperator,
             "Minter is not operator"
@@ -254,12 +253,12 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     //----------------------------------------------------------------
     // FREEZE TRANSFER OF TOKEN
     //----------------------------------------------------------------
-    function freezeToken(uint _tokenId) external onlyOwner tokenExist(_tokenId){
+    function freezeToken(uint _tokenId) external onlyOwner {
         require(!TokenMetadata[_tokenId].tokenFrozen, "Token already frozen");
         TokenMetadata[_tokenId].tokenFrozen = true;
     }
 
-    function unfreezeToken(uint _tokenId) external onlyOwner tokenExist(_tokenId){
+    function unfreezeToken(uint _tokenId) external onlyOwner {
         require(TokenMetadata[_tokenId].tokenFrozen, "Token not frozen");
         TokenMetadata[_tokenId].tokenFrozen = false;
     }
@@ -365,7 +364,6 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
                 }
             }
         }
-        emit OperatorsUpdated(msg.sender, true);
     }
 
     // update operators for all tokens of a caller
@@ -378,22 +376,22 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         for (uint256 i = 0; i < upl.length; i++) {
             address operatorx = upl[i];
             uint256 idx;
-            // break if any prev operator is same as current operator
+            // break if any new operator is already an operator for the caller
             for (idx = 0; idx < operators.length; idx++) {
                 if (operators[idx] == operatorx) {
                     break;
                 }
             }
+            //if prev operator does't exist in new operator list, remove it else add it to the list
             if (idx != operators.length) {
-                // if current operator already exist in operators, remove it from operators list
+                // if new operator already exist in operators, remove it from operator list
                 operators[idx] = operators[operators.length - 1];
                 operators.pop();
             } else {
-                // else add it to operators list
+                // if new operator doesn't exist in operators, add it to operator list
                 operators.push(operatorx);
             }
         }
-        emit OperatorsUpdated(msg.sender, true);
     }
 
     // check if the minter is an operator for a token
@@ -445,20 +443,20 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         uint _amount,
         bool _custodial,
         string _name
-    ) external notPausedContract isMinter(msg.sender) {
+    ) external isMinter(msg.sender) notPausedContract {
         require(
             TokenMetadata[_tokenId].minter == address(0),
             "Token already exist"
         );
         require(
-            _expirationDate >= block.timestamp,
+            _expirationDate > block.timestamp,
             "Expiration date must be above current time"
         );
         require(
             _amount >= unitPrice && _amount % unitPrice == 0,
             "Amount must be in multiples of unit price"
         );
-        require(_interestRate > 0, "Interest rate cannot be 0");
+        require(_interestRate > 0, "interest rate cannot be less than 0");
         TokenMetadata[_tokenId] = Token(
             _expirationDate,
             _interestRate,
@@ -482,7 +480,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         );
     }
 
-    function burn(uint _tokenId, uint _amount) external notPausedContract tokenExist(_tokenId){
+    function burn(uint _tokenId, uint _amount) external notPausedContract {
         require(_isTokenMinter(_tokenId, msg.sender), "Not token minter");
         require(balance > _amount, "Amount must be less than balance");
         require(_amount > 0, "Amount cannot be less than 0");
@@ -498,7 +496,6 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         else {
             revert("Insufficient balance");
         }
-        emit TokenBurned(_tokenId, _amount);
     }
 
     function _deposit(
