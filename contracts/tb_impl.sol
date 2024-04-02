@@ -407,9 +407,8 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     }
 
     // check ownership and operator permissions for a list of transfers
-    function checkOwnerAndOperator(TransferParam calldata _transfer) public view returns (bool) {
-        address sender = _transfer.senderAddress;
-        address receiver = _transfer.receiverAddress;
+    function checkOwnerAndOperator(TransferParam memory _transfer) public view returns (bool) {
+        address sender = _transfer.sender;
         uint tokenId = _transfer.tokenId;
 
         if (msg.sender != sender) {
@@ -417,10 +416,13 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
                 (operator[msg.sender][tokenId] == sender ||
                     _isOperatorForAll(sender)) ||
                 minterIsOperator(tokenId, sender)
-            ) continue;
-            return false;
+            ) {
+                return true;
+            }
+            else{
+                return false;
+            }
         }
-        return true;
     }
 
     function _isOperatorForAll(address _sender) internal view returns (bool) {
@@ -444,7 +446,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         uint _tokenId,
         uint _amount,
         bool _custodial,
-        string _name
+        string memory _name
     ) external notPausedContract isMinter(msg.sender) {
         require(
             TokenMetadata[_tokenId].minter == address(0),
@@ -484,14 +486,14 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
 
     function burn(uint _tokenId, uint _amount) external notPausedContract tokenExist(_tokenId){
         require(_isTokenMinter(_tokenId, msg.sender), "Not token minter");
+        uint balance = balanceOf[msg.sender][_tokenId];
         require(balance > _amount, "Amount must be less than balance");
         require(_amount > 0, "Amount cannot be less than 0");
-        uint balance = balanceOf[msg.sender][_tokenId];
         if (balance > _amount) {
             _burn(msg.sender, _tokenId, _amount);
             for(uint i=0; i < minterTokensMetadata[msg.sender].length; i++){
-                if(minterTokensMetadata[msg.sender][i].tokenId === _tokenId){
-                    minterTokensMetadata[msg.sender][i].amount -= _amount;
+                if(minterTokensMetadata[msg.sender][i].tokenId == _tokenId){
+                    minterTokensMetadata[msg.sender][i].tokensMinted -= _amount;
                 }
             }
         }
@@ -554,7 +556,6 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
 
         Transfers[_tokenId].push(
             DepositWithdrawal(
-                _tokenId,
                 _amount,
                 block.timestamp,
                 _sender,
@@ -577,7 +578,9 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         uint _amount,
         address _sender,
         address _receiver
-    ) internal tokenExist(_tokenId) isNotFrozenToken(_tokenId) checkOwnerAndOperator(TransferParam(_tokenId, _amount, _sender, _receiver)) {
+    ) internal tokenExist(_tokenId) isNotFrozenToken(_tokenId) {
+        TransferParam memory _transfer = TransferParam(_tokenId, _amount, _sender, _receiver);
+        require(checkOwnerAndOperator(_transfer), "Sender must be Caller or operator");
         require(transfer(_receiver, _tokenId, _amount), "Transfer failed");
         emit TokenInterTransfered(_sender, _receiver, _amount);
     }

@@ -2,10 +2,13 @@
   "name": "Tokenized Bond-project",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "@types/jest": "^29.5.12",
+    "@types/mocha": "^10.0.6",
     "hardhat": "^2.20.1"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.2",
+    "chai": "^4.4.1",
     "dotenv": "^16.4.5",
     "ethers": "^6.11.1"
   }
