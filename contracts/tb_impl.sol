@@ -5,33 +5,18 @@ import "./ERC-6909.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TBImpl is Ownable(msg.sender), ERC6909 {
-    event minted(
-        address indexed bondMinter,
+    event minted(address indexed bondMinter,
         uint32 interestRate,
         uint32 indexed maturityDate,
         uint indexed initialSupply,
         uint tokenId
     );
-    event TransferWithdrawal(
-        address indexed sender,
-        address indexed receiver,
-        uint tokenId,
-        uint amount,
-        Status indexed status
-    );
-    event MinterReplaced(
-        uint tokenId,
-        address indexed oldMinter,
-        address indexed newMinter
-    );
+    event TransferWithdrawal(address indexed sender, address indexed receiver, uint tokenId, uint amount, Status indexed status);
+    event MinterReplaced(uint tokenId, address indexed oldMinter, address indexed newMinter);
     event MinterRemoved(address indexed newMinter);
     event TokenInterTransferAllowed(uint tokenId, bool isTransferable);
     event TokenItrAfterExpiryAllowed(uint tokenId, bool isTransferable);
-    event TokenInterTransfered(
-        address indexed sender,
-        address indexed receiver,
-        uint amount
-    );
+    event TokenInterTransfered(address indexed sender, address indexed receiver,uint amount);
     event OperatorsUpdated(address indexed sender, bool isUpdated);
     event TokenBurned(uint tokenId, uint amount);
 
@@ -423,6 +408,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
                 return false;
             }
         }
+        return false; 
     }
 
     function _isOperatorForAll(address _sender) internal view returns (bool) {

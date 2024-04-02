@@ -1,5 +1,6 @@
-const { ethers } = require("hardhat");
 const { testExpect } = require("chai");
+const { ethers: etherPackage } = require("hardhat");
+
 
 describe("Tokenized bonds Test", () => {
   let tbContract;
@@ -9,18 +10,18 @@ describe("Tokenized bonds Test", () => {
 
   const invalidAddress = "0x0000000000000000000000000000000000000000";
 
-  beforeAll(async () => {
-    signers = await ethers.getSigners();
+  before(async () => {
+    signers = await etherPackage.getSigners();
 
     // deploy implementation contract
-    const TBImpl = await ethers.getContractFactory("TBImpl");
+    const TBImpl = await etherPackage.getContractFactory("TBImpl");
     const tbImpl = await TBImpl.deploy();
 
     await tbImpl.waitForDeployment();
     tbImplementationContract = tbImpl.target;
 
     // deploy implementation proxy contract
-    const ProxyTBImpl = await ethers.getContractFactory("TBProxy");
+    const ProxyTBImpl = await etherPackage.getContractFactory("TBProxy");
     const proxyTBImpl = await ProxyTBImpl.deploy(tbImplementationContract);
     await proxyTBImpl.waitForDeployment();
 

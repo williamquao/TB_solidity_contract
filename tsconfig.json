@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "types": [
+            "hardhat",
+            "ethers",
+            "jest"
+        ]
+    },
+}
