@@ -3,12 +3,14 @@ const ethers = require("hardhat");
 const proxyContractAddress = process.env.PROXY_CONTRACT as string;
 
 export class ProxyContractHandler {
-  private proxyContract;
+  private connectedProxyContract;
 
-  constructor() {
+  constructor(privateKey: string) {
     (async () => {
       const MyContract = await ethers.getContractFactory("TBImpl");
-      this.proxyContract = MyContract.attach(proxyContractAddress);
+      const proxyContract =  MyContract.attach(proxyContractAddress);
+      this.connectedProxyContract = await proxyContract.connect(privateKey)
+
     })();
   }
 
@@ -17,7 +19,7 @@ export class ProxyContractHandler {
   async upgradeImplementation(
     newImplementationAddress: string
   ): Promise<string> {
-    const transaction = await this.proxyContract.upgradeImpl(
+    const transaction = await this.connectedProxyContract.upgradeImpl(
       newImplementationAddress
     );
     await transaction.wait();
@@ -30,9 +32,9 @@ export class ProxyContractHandler {
     let result;
 
     if (typeof params === "object") {
-      result = await this.proxyContract[functionName](...Object.values(params));
+      result = await this.connectedProxyContract[functionName](...Object.values(params));
     } else {
-      result = await this.proxyContract[functionName](params);
+      result = await this.connectedProxyContract[functionName](params);
     }
 
     await result.wait();

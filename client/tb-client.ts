@@ -4,8 +4,8 @@ import { MintBond, Minter, OperatorParam, Transfer } from "../dto/tb.dto";
 export class TBClient {
   private proxyContractHandler;
 
-  constructor() {
-    this.proxyContractHandler = new ProxyContractHandler();
+  constructor(privateKey: string) {
+    this.proxyContractHandler = new ProxyContractHandler(privateKey);
   }
 
   /**
