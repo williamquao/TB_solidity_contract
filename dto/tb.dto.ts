@@ -20,8 +20,8 @@ export class Minter {
 }
 
 enum OperatorAction {
-  Add = "Add",
-  Remove = "Remove",
+  Add = 0,
+  Remove = 1,
 }
 
 export class OperatorParam {

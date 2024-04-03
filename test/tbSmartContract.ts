@@ -142,7 +142,7 @@ describe("Tokenized bonds Test", () => {
     it("should fail if minter is tight to a mint", async () => {
       await tbContract
         .connect(signers[1])
-        .mint(1775147997, 10, 3, 100000, true, "CMR Bond");
+        .mint(1775147997, 10, 3, 1000000, true, "CMR Bond");
       await expect(
         tbContract.removeMinter(await signers[1].getAddress())
       ).to.be.rejectedWith("Cannot remove minter");
@@ -345,6 +345,72 @@ describe("Tokenized bonds Test", () => {
       );
     });
   });
+
+  describe("Test Operator", async () => {
+
+    it("should update Operators", async () => {
+    const operators = [
+      {
+      action: 0,
+      owner: await signers[3].getAddress(),
+      tokenId: 3,
+      operator: await signers[4].getAddress()
+      },
+      {
+        action: 0,
+        owner: await signers[3].getAddress(),
+        tokenId: 1,
+        operator: await signers[5].getAddress()
+        }
+      ]
+    await tbContract.connect(signers[3]).updateOperators(operators);
+
+  })
+  it("should update Operators For All", async () => {
+    const operators = [
+      await signers[3].getAddress(),
+      await signers[4].getAddress(),
+      await signers[5].getAddress()
+      ]
+     await tbContract.connect(signers[1]).updateOperatorsForAll(operators);
+  })
+})
+
+  describe("Test Transfer", async () => {
+    it("should Transfers", async () => {
+      await tbContract.resumeInterTransfer(1);
+      const transfer1 = [{
+        tokenId: 3,
+        amount: 100000,
+        sender: await signers[1].getAddress(),
+        receiver: await signers[3].getAddress(),
+      },
+      {
+        tokenId: 1,
+        amount: 80000,
+        sender: await signers[1].getAddress(),
+        receiver: await signers[3].getAddress(),
+      },
+      {
+        tokenId: 3,
+        amount: 5000,
+        sender: await signers[3].getAddress(),
+        receiver: await signers[1].getAddress(),
+      }]
+    const transfers = [
+      {
+        tokenId: 1,
+        amount: 1000,
+        sender: await signers[3].getAddress(),
+        receiver: await signers[4].getAddress(),
+      },
+
+    ]
+    await tbContract.connect(signers[1]).makeTransfer(transfer1);
+
+    await tbContract.connect(signers[3]).makeTransfer(transfers);
+  })
+  })
 
 })
   

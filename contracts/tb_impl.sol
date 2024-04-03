@@ -8,7 +8,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     event minted(
         address indexed bondMinter,
         uint32 interestRate,
-        uint32 indexed maturityDate,
+        uint indexed expirationDate,
         uint indexed initialSupply,
         uint tokenId
     );
@@ -59,7 +59,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     }
 
     struct Token {
-        uint32 expirationDate;
+        uint expirationDate;
         uint32 interestRate;
         address minter;
         bool minterIsOperator;
@@ -295,12 +295,13 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         for (uint i = 0; i < minterTokensMetadata[_OldMinter].length; i++) {
             uint tokenId = minterTokensMetadata[_OldMinter][i].tokenId;
             uint amount = minterTokensMetadata[_OldMinter][i].tokensMinted;
-            TokenMetadata[tokenId].minter = _newMinter;
+            
             // mint previous minter balance to new minter and burn previous minter balance
             _mint(_newMinter, tokenId, balanceOf[_OldMinter][tokenId]);
             _burn(_OldMinter, tokenId, balanceOf[_OldMinter][tokenId]);
             //add  new minter with respective tokens
             minterTokensMetadata[_newMinter].push(minterToken(amount, tokenId));
+            TokenMetadata[tokenId].minter = _newMinter;
             emit MinterReplaced(tokenId, _OldMinter, _newMinter);
         }
         //remove OldMinter
@@ -309,7 +310,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
 
     function removeMinter(
         address _minter
-    ) external onlyOwner notPausedContract {
+    ) external onlyOwner notPausedContract isMinter(_minter){
         require(_minter != address(0), "Address is invalid");
         //cannot remove minter if tight to a token
         require(
@@ -353,6 +354,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
             if (param.action == OperatorAction.Add) {
                 require(param.owner == msg.sender, "Caller not owner");
                 operator[param.owner][param.tokenId] = param.operator;
+                setOperator(param.operator, true);
             } 
             //if action is REMOVE, check if owner is caller and operator exist, then delete operator
             else {
@@ -362,6 +364,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
                     operator[param.owner][param.tokenId] == param.operator
                 ) {
                     delete operator[param.owner][param.tokenId];
+                    setOperator(param.operator, false);
                 }
             }
         }
@@ -388,9 +391,11 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
                 // if current operator already exist in operators, remove it from operators list
                 operators[idx] = operators[operators.length - 1];
                 operators.pop();
+                setOperator(operators[idx], false);
             } else {
                 // else add it to operators list
                 operators.push(operatorx);
+                setOperator(operatorx, true);
             }
         }
         emit OperatorsUpdated(msg.sender, true);
@@ -406,22 +411,21 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
             _sender == TokenMetadata[_tokenId].minter;
     }
 
-    // check ownership and operator permissions for a list of transfers
-    function checkOwnerAndOperator(TransferParam memory _transfer) public view returns (bool) {
+    // check ownership and operator permissions for a  transfer
+     function checkOwnerAndOperator(TransferParam memory _transfer) public view returns (bool) {
         address sender = _transfer.sender;
         uint tokenId = _transfer.tokenId;
-
+        //if caller is not sender, check if caller is operator or minter
         if (msg.sender != sender) {
             if (
                 (operator[msg.sender][tokenId] == sender ||
                     _isOperatorForAll(sender)) ||
-                minterIsOperator(tokenId, sender)
+                minterIsOperator(tokenId, msg.sender)
             ) {
                 return true;
             }
-            else{
-                return false;
-            }
+        }else if(msg.sender == sender && balanceOf[msg.sender][tokenId]>0){
+        return true;
         }
         return false;
     }
@@ -442,7 +446,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     //----------------------------------------------------------------------------
 
     function mint(
-        uint32 _expirationDate,
+        uint _expirationDate,
         uint32 _interestRate,
         uint _tokenId,
         uint _amount,
@@ -504,7 +508,10 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         emit TokenBurned(_tokenId, _amount);
     }
 
-    function _deposit(
+    //----------------------------------------------------------------------------
+    // Transfer
+    //----------------------------------------------------------------------------
+  function _deposit(
         uint _tokenId,
         uint _amount,
         address _sender,
