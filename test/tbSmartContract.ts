@@ -140,7 +140,7 @@ describe("Tokenized bonds Test", () => {
     it("should fail if minter is tight to a mint", async () => {
       await tbContract
         .connect(signers[1])
-        .mint(1775147997, 10, 3, 1000000, true, "CMR Bond");
+        .mint(1775147997, 10, 3, 100000000, true, "CMR Bond");
       await expect(tbContract.removeMinter(await signers[1].getAddress())).to.be
         .reverted;
     });
@@ -308,6 +308,126 @@ describe("Tokenized bonds Test", () => {
 
     it("should fail if token InterTransfer is already paused", async () => {
       await expect(tbContract.pauseInterTransfer(1)).to.be.reverted;
+    });
+  });
+  describe("Test Operator", async () => {
+    it("should successfully update Operators", async () => {
+      const operators = [
+        {
+          action: 0,
+          owner: await signers[3].getAddress(),
+          tokenId: 3,
+          operator: await signers[4].getAddress(),
+        },
+        {
+          action: 1,
+          owner: await signers[3].getAddress(),
+          tokenId: 1,
+          operator: await signers[5].getAddress(),
+        },
+      ];
+      await tbContract.connect(signers[3]).updateOperators(operators);
+    });
+  });
+
+  describe("Test Transfer", async () => {
+    it("should fail if inter transfer is not allowed", async () => {
+      const transfer = [
+        {
+          from: await signers[4].getAddress(),
+          transferDest: [
+            {
+              tokenId: 3,
+              amount: 1000,
+              receiver: await signers[2].getAddress(),
+            },
+            {
+              tokenId: 3,
+              amount: 8000,
+              receiver: await signers[3].getAddress(),
+            },
+          ],
+        },
+      ];
+
+      await expect(tbContract.connect(signers[1]).makeTransfer(transfer)).to.be
+        .reverted;
+    });
+    it("should fail if sending more than balance", async () => {
+      await tbContract.resumeInterTransfer(3);
+      const transfer = [
+        {
+          from: await signers[4].getAddress(),
+          transferDest: [
+            {
+              tokenId: 3,
+              amount: 1000,
+              receiver: await signers[2].getAddress(),
+            },
+            {
+              tokenId: 1,
+              amount: 8000,
+              receiver: await signers[3].getAddress(),
+            },
+            {
+              tokenId: 3,
+              amount: 5000,
+              receiver: await signers[4].getAddress(),
+            },
+          ],
+        },
+      ];
+
+      await expect(tbContract.connect(signers[1]).makeTransfer(transfer)).to.be
+        .reverted;
+    });
+    it("should fail if sender is still receiver", async () => {
+      const transfer = [
+        {
+          from: await signers[1].getAddress(),
+          transferDest: [
+            {
+              tokenId: 3,
+              amount: 1000,
+              receiver: await signers[2].getAddress(),
+            },
+            {
+              tokenId: 1,
+              amount: 8000,
+              receiver: await signers[1].getAddress(),
+            },
+          ],
+        },
+      ];
+
+      await expect(tbContract.connect(signers[1]).makeTransfer(transfer)).to.be
+        .reverted;
+    });
+    it("should Transfer successfully", async () => {
+      const transfer = [
+        {
+          from: await signers[1].getAddress(),
+          transferDest: [
+            {
+              tokenId: 3,
+              amount: 1000,
+              receiver: await signers[2].getAddress(),
+            },
+            {
+              tokenId: 1,
+              amount: 8000,
+              receiver: await signers[3].getAddress(),
+            },
+            {
+              tokenId: 3,
+              amount: 5000,
+              receiver: await signers[4].getAddress(),
+            },
+          ],
+        },
+      ];
+
+      await tbContract.connect(signers[1]).makeTransfer(transfer);
     });
   });
 });

@@ -316,9 +316,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
             OperatorParam memory param = upl[i];
             //if action is ADD, check if owner is caller and add operator
             if (param.action == OperatorAction.Add) {
-                if(param.owner != msg.sender){
-                    revert isNotOwner();
-                }
+                if(param.owner != msg.sender) revert isNotOwner();
                 setOperator(param.operator, true);
             } 
             //if action is REMOVE, check if owner is caller and operator exist, then delete operator
