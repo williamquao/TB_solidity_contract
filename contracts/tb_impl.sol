@@ -302,10 +302,10 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         if(_OldMinter == address(0) || _newMinter == address(0)){
             revert invalidAddress();
         }
-        else if(minterTokensMetadata[_OldMinter].length == 0){
+        else if(!minterExist[_OldMinter]){
             revert notMinter();
         }
-        else if(minterTokensMetadata[_newMinter].length > 0){
+        else if(minterExist[_newMinter]){
             revert isAMinter();
         }
 
@@ -318,12 +318,15 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
             _burn(_OldMinter, tokenId, balanceOf[_OldMinter][tokenId]);
             //add  new minter with respective tokens
             minterTokensMetadata[_newMinter].push(tokenId);
-            minterExist[_newMinter] = true;
             TokenMetadata[tokenId].minter = _newMinter;
             emit MinterReplaced(tokenId, _OldMinter, _newMinter);
         }
         //remove OldMinter
         delete minterTokensMetadata[_OldMinter];
+        minterExist[_newMinter] = true;
+        minterExist[_OldMinter] = false;
+
+
     }
 
     function removeMinter(

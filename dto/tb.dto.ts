@@ -8,9 +8,13 @@ export class MintBond {
 }
 
 export class Transfer {
+  from: string;
+  transferDest: TransferDest[];
+}
+
+export class TransferDest {
   tokenId: number;
   amount: number;
-  sender: string;
   receiver: string;
 }
 
