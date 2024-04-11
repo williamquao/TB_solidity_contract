@@ -97,9 +97,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     error isNotOwnerNorOperator();
 
     modifier notMatured(uint _tokenId) {
-        if(block.timestamp > TokenMetadata[_tokenId].expirationDate){
-            revert isMature();
-        }       
+        if(block.timestamp > TokenMetadata[_tokenId].expirationDate) revert isMature();
         _;
     }
 
@@ -110,12 +108,6 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         _;
     }
 
-    modifier isInputListValid(uint _length) {
-        if(_length > 15){
-            revert invalidInputList();
-        }
-        _;
-    }
 
     //----------------------------------------------------------------------------
     // Contract execution pause/resume
@@ -182,14 +174,15 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     ) internal view returns (bool) {
         if (!TokenMetadata[_tokenId].tokenItrPaused) {
             return true;
-        } else if (
+        } 
+        if (
             TokenMetadata[_tokenId].minter == _sender ||
             TokenMetadata[_tokenId].minter == _receiver
         ) {
             return true;
-        } else {
-            return false;
-        }
+        } 
+        return false;
+        
     }
 
     //----------------------------------------------------------------
@@ -229,14 +222,15 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     ) internal view returns (bool) {
         if (!TokenMetadata[_tokenId].tokenItrExpiryPaused) {
             return true;
-        } else if (
+        } 
+        if (
             TokenMetadata[_tokenId].expirationDate > block.timestamp ||
             TokenMetadata[_tokenId].minter == _receiver
         ) {
             return true;
-        } else {
+        } 
             return false;
-        }
+        
     }
 
     //----------------------------------------------------------------
@@ -288,7 +282,8 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         if(_minter == address(0)){
             revert invalidAddress();
         }
-        else if(minterExist[_minter]){
+        
+        if(minterExist[_minter]){
             revert minterAlreadyExist();
         }
         minterTokensMetadata[_minter] =  new uint[](0);
@@ -302,10 +297,12 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         if(_OldMinter == address(0) || _newMinter == address(0)){
             revert invalidAddress();
         }
-        else if(!minterExist[_OldMinter]){
+        
+        if(!minterExist[_OldMinter]){
             revert notMinter();
         }
-        else if(minterExist[_newMinter]){
+        
+        if(minterExist[_newMinter]){
             revert isAMinter();
         }
 
@@ -336,7 +333,8 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
             revert invalidAddress();
         }
         //cannot remove minter if tight to a token
-        else if(minterTokensMetadata[_minter].length >= 1){
+        
+        if(minterTokensMetadata[_minter].length >= 1){
             revert isActiveMinter();
         }
         minterExist[_minter] = false;
@@ -350,9 +348,9 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     ) internal view isMinter(_minter) returns (bool) {
         if (TokenMetadata[_tokenId].minter == _minter) {
             return true;
-        } else {
+        } 
             return false;
-        }
+        
     }
 
     modifier isMinter(address _minter) {
@@ -369,7 +367,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     // handle both additions and removals of operators for specific tokens
     function updateOperators(
         OperatorParam[] memory upl
-    ) public notPausedContract isInputListValid(upl.length){
+    ) public notPausedContract {
         for (uint i = 0; i < upl.length; i++) {
             OperatorParam memory param = upl[i];
             //if action is ADD, check if owner is caller and add operator
@@ -418,7 +416,8 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
                     ) {
                        isOwnerOrOperator =  true;
                     }
-                } else if(msg.sender == from && balanceOf[msg.sender][tokenId]>0){
+                } 
+                if(msg.sender == from && balanceOf[msg.sender][tokenId]>0){
                     isOwnerOrOperator =  true;
                 }
             }   
@@ -442,13 +441,16 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         if(TokenMetadata[_tokenId].minter != address(0)){
             revert tokenAlreadyExist();
         }
-        else if(_expirationDate <= block.timestamp){
+        
+        if(_expirationDate <= block.timestamp){
             revert invalidExpiration();
         }
-        else if(_amount < unitPrice || _amount % unitPrice != 0){
+        
+        if(_amount < unitPrice || _amount % unitPrice != 0){
             revert isNotMultipleOfUnitPrice();
         }
-        else if(_interestRate == 0){
+        
+        if(_interestRate == 0){
             revert invalidInterest();
         }
 
@@ -473,7 +475,8 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         if(!_isTokenMinter(_tokenId, msg.sender)){
             revert isNotTokenMinter();
         }
-        else if(balance <= _amount || _amount == 0){
+        
+        if(balance <= _amount || _amount == 0){
             revert invalidAmount();
         }
         _burn(msg.sender, _tokenId, _amount);
@@ -481,7 +484,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
 
     function makeTransfer(
        TransferParam[] calldata _transfers
-    ) external notPausedContract isInputListValid(_transfers.length) { 
+    ) external notPausedContract { 
         if(!checkOwnerAndOperators(_transfers)){
             revert isNotOwnerNorOperator();
         }
@@ -496,16 +499,20 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
                 if(!_interTransferAllowed(tokenId, from, receiver)){
                     revert itrPaused();
                 }
-                else if(!_isInterTransferAfterExpiryAllowed(tokenId, receiver)){
+                
+                if(!_isInterTransferAfterExpiryAllowed(tokenId, receiver)){
                     revert itrAfterExpiryIsPaused();
                 }
-                else if(from == receiver){
+                
+                if(from == receiver){
                     revert fromIsReceiver();
                 }
-                else if(amount < unitPrice || amount % unitPrice != 0){
+                
+                if(amount < unitPrice || amount % unitPrice != 0){
                     revert invalidAmount();
                 }
-                else if(balanceOf[from][tokenId] < amount){
+                
+                if(balanceOf[from][tokenId] < amount){
                     revert insufficientBalance();
                 }
        
