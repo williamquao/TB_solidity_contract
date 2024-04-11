@@ -9,7 +9,7 @@ module.exports = {
     enabled: true,
     runs: 200, 
   },
-  defaultNetwork: "sepolia",
+  defaultNetwork: "baseSepolia",
   networks: {
     sepolia: {
       url: "https://rpc2.sepolia.org",
@@ -17,7 +17,7 @@ module.exports = {
       accounts: [process.env.TESTNET_PRIVATE_KEY],
     },
     baseSepolia: {
-      url: "https://base-sepolia-rpc.publicnode.com",
+      url: "https://base-sepolia.public.blastapi.io",
       chainId: 84532,
       accounts: [process.env.BASE_TESTNET_PRIVATE_KEY],
     },

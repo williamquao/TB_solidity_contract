@@ -383,9 +383,9 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         if(TokenMetadata[_tokenId].minter != address(0)){
             revert tokenAlreadyExist();
         }
-        
+
         if(_expirationDate <= block.timestamp) revert invalidExpiration();
-                
+
         if(_interestRate == 0) revert invalidInterest();
 
         TokenMetadata[_tokenId] = Token(
@@ -426,15 +426,15 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
                 address receiver = transferDest[j].receiver;
 
                 if(!_interTransferAllowed(tokenId, from, receiver)) revert itrPaused();
-                
+
                 if(!_isInterTransferAfterExpiryAllowed(tokenId, receiver)) revert itrAfterExpiryIsPaused();
-                
+
                 if(from == receiver) revert fromIsReceiver();
-                                
+
                 if(balanceOf[from][tokenId] < amount) revert insufficientBalance();
-       
+
                 transfer(receiver, tokenId, amount);
-                
+
             }
         }
     }

@@ -10,9 +10,9 @@ export class TransferDest {
   amount: number;
   receiver: string;
 }
-const providerURL = "https://base-sepolia-rpc.publicnode.com";
+const providerURL = "https://base-sepolia.public.blastapi.io";
 const privateKey = "privateKey here";
-const proxyContractAddress = "0x4F1F97302C598109BEeCFa328D743d21991cf456";
+const proxyContractAddress = "0x0F9689C53F19948e4234816c96475f6E0caCD599";
 
 const provider = new ethers.providers.JsonRpcProvider(providerURL);
 const signer = new ethers.Wallet(privateKey, provider);
