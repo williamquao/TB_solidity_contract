@@ -1,8 +1,29 @@
-import { TBClient } from "../client/tb-client";
-import { Transfer } from "../dto/tb.dto";
+const { ethers } = require("ethers");
+
+export class Transfer {
+  from: string;
+  transferDest: TransferDest[];
+}
+
+export class TransferDest {
+  tokenId: number;
+  amount: number;
+  receiver: string;
+}
+const providerURL = "https://base-sepolia-rpc.publicnode.com";
+const privateKey = "privateKey here";
+const proxyContractAddress = "0x4F1F97302C598109BEeCFa328D743d21991cf456";
+
+const provider = new ethers.providers.JsonRpcProvider(providerURL);
+const signer = new ethers.Wallet(privateKey, provider);
 
 (async () => {
-  const privateKey = "privateKey here";
+  const proxyContract = new ethers.Contract(
+    proxyContractAddress,
+    implementationAbi,
+    signer
+  );
+
   const transfers: Transfer[] = [
     {
       from: "0xd59ba1d313685E79753Fbe3dAe0FD60a01BE79F3",
@@ -21,7 +42,7 @@ import { Transfer } from "../dto/tb.dto";
     },
   ];
 
-  const tbClient: TBClient = new TBClient(privateKey);
-
-  await tbClient.transfer(transfers);
+  await proxyContract.transfer(transfers);
 })();
+
+const implementationAbi = [];
