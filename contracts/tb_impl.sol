@@ -19,8 +19,6 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         address indexed receiver,
         uint amount
     );
-
-    uint public constant unitPrice = 1000;
     bool public isContractPaused;
 
     enum Status {
@@ -88,7 +86,6 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     error isActiveMinter();
     error isNotOwner();
     error invalidExpiration();
-    error isNotMultipleOfUnitPrice();
     error invalidInterest();
     error isNotTokenMinter();
     error invalidAmount();
@@ -102,9 +99,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     }
 
     modifier tokenExist(uint _tokenId) {
-        if(TokenMetadata[_tokenId].expirationDate == 0){
-            revert nonExistantToken();
-        }
+        if(TokenMetadata[_tokenId].expirationDate == 0) revert nonExistantToken();
         _;
     }
 
@@ -115,24 +110,18 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
 
     //Pause contract execution
     function pause() external onlyOwner {
-        if(isContractPaused){
-            revert isPaused();
-        }
+        if(isContractPaused) revert isPaused();
         isContractPaused = true;
     }
 
     //Resume contract execution
     function resume() external onlyOwner {
-        if(!isContractPaused){
-            revert isNotPaused();
-        }
+        if(!isContractPaused) revert isNotPaused();
         isContractPaused = false;
     }
 
     modifier notPausedContract() {
-        if(isContractPaused){
-            revert isPaused();
-        }
+        if(isContractPaused) revert isPaused();
         _;
     }
 
@@ -143,9 +132,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     function resumeInterTransfer(
         uint _tokenId
     ) external onlyOwner tokenExist(_tokenId) {
-        if(!TokenMetadata[_tokenId].tokenItrPaused){
-            revert itrNotPaused();
-        }
+        if(!TokenMetadata[_tokenId].tokenItrPaused) revert itrNotPaused();
         TokenMetadata[_tokenId].tokenItrPaused = false;
         emit TokenInterTransferAllowed(
             _tokenId,
@@ -157,9 +144,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     function pauseInterTransfer(
         uint _tokenId
     ) external onlyOwner tokenExist(_tokenId) {
-        if(TokenMetadata[_tokenId].tokenItrPaused){
-            revert itrPaused();
-        }
+        if(TokenMetadata[_tokenId].tokenItrPaused) revert itrPaused();
         TokenMetadata[_tokenId].tokenItrPaused = true;
         emit TokenInterTransferAllowed(
             _tokenId,
@@ -172,15 +157,11 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         address _sender,
         address _receiver
     ) internal view returns (bool) {
-        if (!TokenMetadata[_tokenId].tokenItrPaused) {
-            return true;
-        } 
+        if (!TokenMetadata[_tokenId].tokenItrPaused) return true;
         if (
             TokenMetadata[_tokenId].minter == _sender ||
             TokenMetadata[_tokenId].minter == _receiver
-        ) {
-            return true;
-        } 
+        ) return true;
         return false;
         
     }
@@ -192,9 +173,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     function resumeItrAfterExpiry(
         uint _tokenId
     ) external onlyOwner tokenExist(_tokenId) {
-        if(!TokenMetadata[_tokenId].tokenItrExpiryPaused){
-            revert itrAfterExpiryNotPaused();
-        }
+        if(!TokenMetadata[_tokenId].tokenItrExpiryPaused) revert itrAfterExpiryNotPaused();
 
         TokenMetadata[_tokenId].tokenItrExpiryPaused = false;
         emit TokenItrAfterExpiryAllowed(
@@ -206,9 +185,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     function pauseItrAfterExpiry(
         uint _tokenId
     ) external onlyOwner tokenExist(_tokenId) {
-        if(TokenMetadata[_tokenId].tokenItrExpiryPaused){
-            revert itrAfterExpiryIsPaused();
-        }
+        if(TokenMetadata[_tokenId].tokenItrExpiryPaused) revert itrAfterExpiryIsPaused();
         TokenMetadata[_tokenId].tokenItrExpiryPaused = true;
         emit TokenItrAfterExpiryAllowed(
             _tokenId,
@@ -220,16 +197,12 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         uint _tokenId,
         address _receiver
     ) internal view returns (bool) {
-        if (!TokenMetadata[_tokenId].tokenItrExpiryPaused) {
-            return true;
-        } 
+        if (!TokenMetadata[_tokenId].tokenItrExpiryPaused) return true;
         if (
             TokenMetadata[_tokenId].expirationDate > block.timestamp ||
             TokenMetadata[_tokenId].minter == _receiver
-        ) {
-            return true;
-        } 
-            return false;
+        ) return true;
+        return false;
         
     }
 
@@ -237,16 +210,12 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     // MINTER IS OPERATOR
     //----------------------------------------------------------------
     function setMinterAsOperator(uint _tokenId) external onlyOwner tokenExist(_tokenId){
-        if(TokenMetadata[_tokenId].minterIsOperator){
-            revert isTokenOperator();
-        }
+        if(TokenMetadata[_tokenId].minterIsOperator) revert isTokenOperator();
         TokenMetadata[_tokenId].minterIsOperator = true;
     }
 
     function unsetMinterAsOperator(uint _tokenId) external onlyOwner tokenExist(_tokenId){
-        if(!TokenMetadata[_tokenId].minterIsOperator){
-            revert notOperator();
-        }
+        if(!TokenMetadata[_tokenId].minterIsOperator) revert notOperator();
         TokenMetadata[_tokenId].minterIsOperator = false;
     }
 
@@ -254,23 +223,17 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     // FREEZE TRANSFER OF TOKEN
     //----------------------------------------------------------------
     function freezeToken(uint _tokenId) external onlyOwner tokenExist(_tokenId){
-        if(TokenMetadata[_tokenId].tokenFrozen){
-            revert isFrozen();
-        }
+        if(TokenMetadata[_tokenId].tokenFrozen) revert isFrozen();
         TokenMetadata[_tokenId].tokenFrozen = true;
     }
 
     function unfreezeToken(uint _tokenId) external onlyOwner tokenExist(_tokenId){
-        if(!TokenMetadata[_tokenId].tokenFrozen){
-            revert notFrozen();
-        }
+        if(!TokenMetadata[_tokenId].tokenFrozen) revert notFrozen();
         TokenMetadata[_tokenId].tokenFrozen = false;
     }
 
     modifier isNotFrozenToken(uint _tokenId) {
-        if(TokenMetadata[_tokenId].tokenFrozen){
-            revert isFrozen();
-        }
+        if(TokenMetadata[_tokenId].tokenFrozen) revert isFrozen();
         _;
     }
 
@@ -279,13 +242,8 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     //----------------------------------------------------------------------------
 
     function addMinter(address _minter) external onlyOwner {
-        if(_minter == address(0)){
-            revert invalidAddress();
-        }
-        
-        if(minterExist[_minter]){
-            revert minterAlreadyExist();
-        }
+        if(_minter == address(0)) revert invalidAddress();
+        if(minterExist[_minter]) revert minterAlreadyExist();
         minterTokensMetadata[_minter] =  new uint[](0);
         minterExist[_minter] = true;
     }
@@ -294,17 +252,11 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         address _OldMinter,
         address _newMinter
     ) public onlyOwner notPausedContract {
-        if(_OldMinter == address(0) || _newMinter == address(0)){
-            revert invalidAddress();
-        }
+        if(_OldMinter == address(0) || _newMinter == address(0)) revert invalidAddress();
         
-        if(!minterExist[_OldMinter]){
-            revert notMinter();
-        }
+        if(!minterExist[_OldMinter]) revert notMinter();
         
-        if(minterExist[_newMinter]){
-            revert isAMinter();
-        }
+        if(minterExist[_newMinter]) revert isAMinter();
 
         // replace old minter with new minter in all minted tokens
         for (uint i = 0; i < minterTokensMetadata[_OldMinter].length; i++) {
@@ -329,14 +281,10 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     function removeMinter(
         address _minter
     ) external onlyOwner notPausedContract isMinter(_minter){
-        if(_minter == address(0)){
-            revert invalidAddress();
-        }
+        if(_minter == address(0)) revert invalidAddress();
         //cannot remove minter if tight to a token
         
-        if(minterTokensMetadata[_minter].length >= 1){
-            revert isActiveMinter();
-        }
+        if(minterTokensMetadata[_minter].length >= 1) revert isActiveMinter();
         minterExist[_minter] = false;
         delete minterTokensMetadata[_minter];
         emit MinterRemoved(_minter);
@@ -346,17 +294,13 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         uint _tokenId,
         address _minter
     ) internal view isMinter(_minter) returns (bool) {
-        if (TokenMetadata[_tokenId].minter == _minter) {
-            return true;
-        } 
-            return false;
+        if (TokenMetadata[_tokenId].minter == _minter) return true;
+        return false;
         
     }
 
     modifier isMinter(address _minter) {
-        if(!minterExist[_minter]){
-            revert notMinter();
-        }
+        if(!minterExist[_minter]) revert notMinter();
         _;
     }
 
@@ -442,17 +386,9 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
             revert tokenAlreadyExist();
         }
         
-        if(_expirationDate <= block.timestamp){
-            revert invalidExpiration();
-        }
-        
-        if(_amount < unitPrice || _amount % unitPrice != 0){
-            revert isNotMultipleOfUnitPrice();
-        }
-        
-        if(_interestRate == 0){
-            revert invalidInterest();
-        }
+        if(_expirationDate <= block.timestamp) revert invalidExpiration();
+                
+        if(_interestRate == 0) revert invalidInterest();
 
         TokenMetadata[_tokenId] = Token(
             _expirationDate,
@@ -472,13 +408,8 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
 
     function burn(uint _tokenId, uint _amount) external notPausedContract tokenExist(_tokenId){
         uint balance = balanceOf[msg.sender][_tokenId];
-        if(!_isTokenMinter(_tokenId, msg.sender)){
-            revert isNotTokenMinter();
-        }
-        
-        if(balance <= _amount || _amount == 0){
-            revert invalidAmount();
-        }
+        if(!_isTokenMinter(_tokenId, msg.sender)) revert isNotTokenMinter();
+        if(balance <= _amount || _amount == 0) revert invalidAmount();
         _burn(msg.sender, _tokenId, _amount);
     }
 
@@ -496,25 +427,13 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
                 uint amount = transferDest[j].amount;
                 address receiver = transferDest[j].receiver;
 
-                if(!_interTransferAllowed(tokenId, from, receiver)){
-                    revert itrPaused();
-                }
+                if(!_interTransferAllowed(tokenId, from, receiver)) revert itrPaused();
                 
-                if(!_isInterTransferAfterExpiryAllowed(tokenId, receiver)){
-                    revert itrAfterExpiryIsPaused();
-                }
+                if(!_isInterTransferAfterExpiryAllowed(tokenId, receiver)) revert itrAfterExpiryIsPaused();
                 
-                if(from == receiver){
-                    revert fromIsReceiver();
-                }
-                
-                if(amount < unitPrice || amount % unitPrice != 0){
-                    revert invalidAmount();
-                }
-                
-                if(balanceOf[from][tokenId] < amount){
-                    revert insufficientBalance();
-                }
+                if(from == receiver) revert fromIsReceiver();
+                                
+                if(balanceOf[from][tokenId] < amount) revert insufficientBalance();
        
                 transfer(receiver, tokenId, amount);
                 

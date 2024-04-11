@@ -178,13 +178,7 @@ describe("Tokenized bonds Test", () => {
           .mint(1643458951, 10, 1, 1000000, true, "CMR Bond")
       ).to.be.reverted;
     });
-    it("should fail if expiration date is less than present", async () => {
-      await expect(
-        tbContract
-          .connect(signers[1])
-          .mint(1743458951, 10, 1, 100, true, "CMR Bond")
-      ).to.be.reverted;
-    });
+
     it("should fail if interest rate is <= 0", async () => {
       await expect(
         tbContract
@@ -193,8 +187,7 @@ describe("Tokenized bonds Test", () => {
       ).to.be.reverted;
     });
     it("should successfully mint a token", async () => {
-      const a = await tbContract.minterExist(await signers[1].getAddress());
-      console.log(a);
+      await tbContract.minterExist(await signers[1].getAddress());
       const trx = await tbContract
         .connect(signers[1])
         .mint(1743458951, 10, 1, 100000, true, "CMR Bond");
