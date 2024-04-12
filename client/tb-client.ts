@@ -339,19 +339,4 @@ export class TBClient {
       return "Operation failed: " + error;
     }
   }
-
-  async updateOperatorsForAll(operators: string[]): Promise<string> {
-    try {
-      const functionName = "updateOperatorsForAll";
-      const updateOperatorsForAll =
-        await this.proxyContractHandler.callImplementationFunction(
-          functionName,
-          operators
-        );
-      const hash: string = await updateOperatorsForAll?.hash;
-      return hash;
-    } catch (error) {
-      return "Operation failed: " + error;
-    }
-  }
 }
