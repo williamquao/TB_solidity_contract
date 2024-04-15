@@ -128,7 +128,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     //----------------------------------------------------------------
     // INTER TRANSFER PAUSE AND RESUME
     //----------------------------------------------------------------
-    // permit users to transfer a specific bond among themselves
+    // permit users to transfer a specific token among themselves
     function resumeInterTransfer(
         uint _tokenId
     ) external onlyOwner tokenExist(_tokenId) {
@@ -140,7 +140,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         );
     }
 
-    // prevent users from transfering a specific bond among themselves
+    // prevent users from transfering a specific token among themselves
     function pauseInterTransfer(
         uint _tokenId
     ) external onlyOwner tokenExist(_tokenId) {
