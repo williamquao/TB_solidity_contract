@@ -1168,4 +1168,15 @@ const signer = new ethers.Wallet(privateKey, provider);
 
   const transfer = await proxyContract.makeTransfer(transfers);
   console.log("Operation hash: ", transfer.hash);
+  // const transfer = await proxyContract.mint(
+  //   1775147997,
+  //   10,
+  //   1,
+  //   10000000000,
+  //   true,
+  //   "CMR Bond"
+  // );
+  // const transfer = await proxyContract.addMinter(
+  //   "0x87Eb7928C7EF7a8600637a34327d26Af9d9602D5"
+  // );
 })();
