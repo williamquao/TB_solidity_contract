@@ -26,7 +26,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         WITHDRAW
     }
 
-    struct TransferDest {
+    struct TransferDestination {
         uint tokenId;
         uint amount;
         address receiver;
@@ -34,7 +34,7 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
     
     struct TransferParam{
         address from;
-        TransferDest[] transferDest;
+        TransferDestination[] transferDestination;
     }
 
     struct Token {
@@ -347,9 +347,9 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         bool isOwnerOrOperator;
         for (uint i = 0; i < _transfers.length; i++) {
                 address from = _transfers[i].from;
-                TransferDest[] calldata transferDest = _transfers[i].transferDest;
-            for (uint j = 0; j < transferDest.length; j++) {
-                uint tokenId = transferDest[j].tokenId;
+                TransferDestination[] calldata transferDestination = _transfers[i].transferDestination;
+            for (uint j = 0; j < transferDestination.length; j++) {
+                uint tokenId = transferDestination[j].tokenId;
                 //if caller is not sender, check if caller is operator or minter
                 if (msg.sender != from) {
                     if (
@@ -419,11 +419,11 @@ contract TBImpl is Ownable(msg.sender), ERC6909 {
         }
         for (uint i = 0; i < _transfers.length; i++) {
             address from = _transfers[i].from;
-            TransferDest[] calldata transferDest = _transfers[i].transferDest;
-            for (uint j = 0; j < transferDest.length; j++) {
-                uint tokenId = transferDest[j].tokenId;
-                uint amount = transferDest[j].amount;
-                address receiver = transferDest[j].receiver;
+            TransferDestination[] calldata transferDestination = _transfers[i].transferDestination;
+            for (uint j = 0; j < transferDestination.length; j++) {
+                uint tokenId = transferDestination[j].tokenId;
+                uint amount = transferDestination[j].amount;
+                address receiver = transferDestination[j].receiver;
 
                 if(!_interTransferAllowed(tokenId, from, receiver)) revert itrPaused();
 

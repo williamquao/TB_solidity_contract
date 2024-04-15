@@ -1135,7 +1135,7 @@ const implementationAbi = [
 const providerURL = "https://base-sepolia.public.blastapi.io";
 const privateKey =
   "0e7318e6821b7d9149cc2016c0b5939ddf5932f768a2eff2d7015da3f97114f6";
-const proxyContractAddress = "0x0F9689C53F19948e4234816c96475f6E0caCD599";
+const proxyContractAddress = "0xCDF797212fFed02Dee1a1C131d212952a1cbDd1B";
 
 const provider = new ethers.JsonRpcProvider(providerURL);
 const signer = new ethers.Wallet(privateKey, provider);
@@ -1162,7 +1162,7 @@ const signer = new ethers.Wallet(privateKey, provider);
   const transfers = [
     {
       from: "0x87Eb7928C7EF7a8600637a34327d26Af9d9602D5",
-      transferDest: destinations,
+      transferDestination: destinations,
     },
   ];
 
