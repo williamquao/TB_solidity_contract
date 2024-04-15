@@ -1,6 +1,6 @@
 const { ethers } = require("ethers");
 
-const implementationAbi = [
+const implementationApplicationBinaryInterface = [
   {
     inputs: [
       {
@@ -602,8 +602,8 @@ const implementationAbi = [
                 type: "address",
               },
             ],
-            internalType: "struct TBImpl.TransferDest[]",
-            name: "transferDest",
+            internalType: "struct TBImpl.TransferDestination[]",
+            name: "transferDestination",
             type: "tuple[]",
           },
         ],
@@ -700,8 +700,8 @@ const implementationAbi = [
                 type: "address",
               },
             ],
-            internalType: "struct TBImpl.TransferDest[]",
-            name: "transferDest",
+            internalType: "struct TBImpl.TransferDestination[]",
+            name: "transferDestination",
             type: "tuple[]",
           },
         ],
@@ -1143,7 +1143,7 @@ const signer = new ethers.Wallet(privateKey, provider);
 (async () => {
   const proxyContract = new ethers.Contract(
     proxyContractAddress,
-    implementationAbi,
+    implementationApplicationBinaryInterface,
     signer
   );
 
