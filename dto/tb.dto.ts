@@ -9,7 +9,7 @@ export class MintBond {
 
 export class Transfer {
   from: string;
-  transferDest: TransferDest[];
+  transferDestination: TransferDest[];
 }
 
 export class TransferDest {

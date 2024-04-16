@@ -407,7 +407,7 @@ describe("Tokenized bonds Test", () => {
       const transfer = [
         {
           from: await signers[1].getAddress(),
-          transferDest: [
+          transferDestination: [
             {
               tokenId: 3,
               amount: 1000,
